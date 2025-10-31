@@ -578,8 +578,8 @@ document.addEventListener('DOMContentLoaded', () => {
         homeCanvas.dataset.initialized = 'true';
         // Determine correct image path based on page location
         const imagePath = homeCanvas.closest('body').baseURI.includes('pages') 
-            ? '../assets/images/me.png?' + Date.now()
-            : 'assets/images/me.png?' + Date.now();
+            ? '../assets/images/home.png?' + Date.now()
+            : 'assets/images/home.png?' + Date.now();
         window.fluidHomePixiInstance = new FluidHomePixi(homeCanvas, imagePath);
     }
     
