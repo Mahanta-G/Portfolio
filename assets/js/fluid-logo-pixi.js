@@ -44,6 +44,21 @@ class FluidLogoPixi {
     }
 
     loadLogoImage() {
+        // Check if screen width is smaller than 10cm (approximately 377px at 96 DPI)
+        // 10cm = 100mm, at 96 DPI: 100mm / 25.4mm * 96 = ~377px
+        const screenWidthCm = window.innerWidth / (window.devicePixelRatio || 1) / 37.795; // Convert px to cm
+        const isSmallScreen = window.innerWidth < 377 || screenWidthCm < 10;
+        
+        // If screen is smaller than 10cm, use GM initials instead of image
+        if (isSmallScreen) {
+            if (this.isInitialized) return;
+            this.isInitialized = true;
+            this.createParticlesFromText();
+            this.animate();
+            return;
+        }
+        
+        // For larger screens, try to load the image
         const img = new Image();
         
         img.onload = () => {
@@ -289,6 +304,7 @@ class FluidLogoPixi {
             this.container.removeChildren();
             this.isInitialized = false;
             
+            // Reload logo (will check screen size again)
             this.loadLogoImage();
         }
     }
