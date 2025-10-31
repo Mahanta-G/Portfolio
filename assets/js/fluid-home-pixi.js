@@ -57,39 +57,19 @@ class FluidHomePixi {
             floatingElements.classList.add('fix-size');
         }
         
-        // Delay to let browser recalculate sizes before initializing Pixi
-        setTimeout(() => {
-            // Use Math.max to ensure dimensions are never below minimum (always enforce minimum)
-            const width = Math.max(parent.offsetWidth || 140, 140);
-            const height = Math.max(parent.offsetHeight || 140, 140);
-            
-            // Debug: log dimensions if zero (helps identify collapse)
-            if (width === 0 || height === 0) {
-                console.warn('Container collapse detected at init:', {
-                    width: parent.offsetWidth,
-                    height: parent.offsetHeight,
-                    rect: parent.getBoundingClientRect()
-                });
-            }
-            
-            // Update application size with validated dimensions
-            if (this.app) {
-                this.app.renderer.resize(width, height);
-            }
-        }, 60); // Small delay to let the browser recalculate sizes
-        
-        // Use Math.max to ensure dimensions are never below minimum for initial setup
-        const width = Math.max(parent.offsetWidth || 140, 140);
-        const height = Math.max(parent.offsetHeight || 140, 140);
-        
         // Mobile optimization: lower resolution and performance settings
         const maxResolution = this.isMobile ? 1 : 1.5;
+        
+        // Use Math.max to ensure dimensions are never below minimum for initial setup
+        // Use initial dimensions with fallback to 140
+        const initialWidth = Math.max(parent.offsetWidth || 140, 140);
+        const initialHeight = Math.max(parent.offsetHeight || 140, 140);
         
         // Create PixiJS Application with WebGL
         this.app = new PIXI.Application({
             view: this.canvas,
-            width: width,
-            height: height,
+            width: initialWidth,
+            height: initialHeight,
             backgroundColor: 0x000000,
             backgroundAlpha: 0,
             antialias: !this.isMobile, // Disable on mobile for performance
@@ -100,6 +80,26 @@ class FluidHomePixi {
 
         this.loadImage();
         this.setupEventListeners();
+        
+        // After initialization, ensure dimensions are correct with a delayed check
+        setTimeout(() => {
+            if (this.app && this.app.renderer) {
+                const width = Math.max(parent.offsetWidth || 140, 140);
+                const height = Math.max(parent.offsetHeight || 140, 140);
+                
+                // Debug: log dimensions if zero (helps identify collapse)
+                if (width === 0 || height === 0) {
+                    console.warn('Container collapse detected at init:', {
+                        width: parent.offsetWidth,
+                        height: parent.offsetHeight,
+                        rect: parent.getBoundingClientRect()
+                    });
+                }
+                
+                // Update application size with validated dimensions after layout settles
+                this.app.renderer.resize(width, height);
+            }
+        }, 60); // Small delay to let the browser recalculate sizes
     }
 
     loadImage() {

@@ -308,12 +308,6 @@ html {
 
 /* Force layout flow - use flex or block for reliable inheritance */
 .fluid-home-container {
-    display: flex !important; /* More reliable layout flow */
-    align-items: center;
-    justify-content: center;
-}
-
-.fluid-home-container {
     position: absolute;
     width: 600px;
     height: 600px;
@@ -334,8 +328,8 @@ html {
     -webkit-touch-callout: none !important; /* Prevent iOS callout */
     -webkit-user-select: none !important; /* Prevent selection */
     user-select: none !important;
-    /* Always visible - never hide */
-    display: flex !important; /* Force layout flow - more reliable than block */
+    /* Force layout flow - more reliable than block */
+    display: flex !important;
     align-items: center;
     justify-content: center;
     /* Prevent any interaction that could block scroll */
