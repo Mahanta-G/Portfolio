@@ -243,12 +243,19 @@ class FluidHomePixi {
         this.swirlSprite.scale.set(0.8);
         this.swirlSprite.alpha = 0; // Start invisible
         
-        // Create displacement filter
-        this.displacementFilter = new PIXI.filters.DisplacementFilter(this.swirlSprite);
-        this.displacementFilter.scale.x = 0;
-        this.displacementFilter.scale.y = 0;
-        
-        this.sprite.filters = [this.displacementFilter];
+        // Create displacement filter (using deprecated class for PixiJS v7.3.2 compatibility)
+        // Note: DisplacementFilter is deprecated but still works in v7.3.2
+        // We keep scale at 0 (disabled) to prevent any visual effects
+        try {
+            this.displacementFilter = new PIXI.filters.DisplacementFilter(this.swirlSprite);
+            this.displacementFilter.scale.x = 0;
+            this.displacementFilter.scale.y = 0;
+            this.sprite.filters = [this.displacementFilter];
+        } catch (e) {
+            // If DisplacementFilter fails, just don't apply any filters
+            console.warn('DisplacementFilter not available, skipping filter');
+            this.displacementFilter = null;
+        }
         this.app.stage.addChild(this.swirlSprite);
     }
 

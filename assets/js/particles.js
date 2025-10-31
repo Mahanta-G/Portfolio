@@ -86,30 +86,10 @@ class ParticleCursor {
     }
 
     async loadThreeJSToys() {
-        return new Promise((resolve, reject) => {
-            if (typeof particlesCursor !== 'undefined') {
-                resolve({ particlesCursor });
-                return;
-            }
-            
-            const script = document.createElement('script');
-            script.type = 'module';
-            script.innerHTML = `
-                import { particlesCursor } from "https://unpkg.com/threejs-toys@0.0.0/build/threejs-toys.module.cdn.min.js";
-                window.particlesCursor = particlesCursor;
-                window.dispatchEvent(new CustomEvent('threejs-toys-loaded'));
-            `;
-            
-            script.onerror = () => {
-                reject(new Error('Threejs-toys failed to load'));
-            };
-            
-            window.addEventListener('threejs-toys-loaded', () => {
-                resolve({ particlesCursor: window.particlesCursor });
-            });
-            
-            document.head.appendChild(script);
-        });
+        // Skip threejs-toys - use fallback only to avoid CORS/404 errors
+        // The library at version 0.0.0 doesn't exist and causes CORS issues
+        // We'll use the brush stroke fallback instead
+        return Promise.reject(new Error('Threejs-toys not available - using fallback'));
     }
 
     createBrushStrokeFallback() {

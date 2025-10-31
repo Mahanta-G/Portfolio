@@ -145,9 +145,11 @@ class FluidLogoPixi {
                     particle.endFill();
                     
                     // Mobile: don't blur particles for sharper logo
-                    if (!this.isMobile && particleCount % 4 === 0) {
-                        particle.filters = [new PIXI.filters.BlurFilter(2, 2)];
-                    }
+                    // Note: BlurFilter is deprecated in PixiJS v7.3.2 but still works
+                    // We'll skip blur filter to avoid deprecation warnings
+                    // if (!this.isMobile && particleCount % 4 === 0) {
+                    //     particle.filters = [new PIXI.filters.BlurFilter(2, 2)];
+                    // }
                     
                     // Position relative to the drawn image area
                     particle.x = Math.floor(x + px);
