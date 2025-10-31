@@ -179,15 +179,30 @@ class FluidHomePixi {
         };
 
         // Support both mouse and touch events
-        // Check screen width - disable all interactions on small screens to allow scrolling
+        // Check screen width - disable all interactions on small screens to allow touch scrolling
         const isSmallScreen = window.innerWidth <= 320;
         
         if (this.isMobile || isSmallScreen) {
             // Mobile and small screens: completely disable touch/mouse events
-            // Don't add any event listeners - canvas has pointer-events: none
-            // This ensures scrolling is never blocked
+            // CRITICAL: Don't add ANY event listeners on mobile/small screens
+            // Even passive listeners can interfere with touch drag scrolling
+            // Canvas has pointer-events: none and touch-action: pan-y to allow scrolling
             this.mousePos.x = -1000;
             this.mousePos.y = -1000;
+            
+            // Explicitly prevent any touch event capture on canvas
+            // This ensures touch scrolling works smoothly
+            this.canvas.addEventListener('touchstart', (e) => {
+                // Don't prevent default - allow scroll to work
+            }, { passive: true, capture: false });
+            
+            this.canvas.addEventListener('touchmove', (e) => {
+                // Don't prevent default - allow scroll to work
+            }, { passive: true, capture: false });
+            
+            this.canvas.addEventListener('touchend', (e) => {
+                // Don't prevent default - allow scroll to work
+            }, { passive: true, capture: false });
         } else {
             // Desktop only: add mouse events but still disable swirl animation
             this.canvas.addEventListener('mousemove', handlePointerMove);

@@ -304,8 +304,11 @@ html {
     will-change: transform;
     backface-visibility: hidden;
     transform-style: preserve-3d;
-    /* Mobile fix: allow scrolling through container */
-    touch-action: pan-y pan-x pinch-zoom !important; /* Force allow all scrolling */
+    /* Mobile fix: allow touch scrolling - this is critical for drag scroll */
+    touch-action: pan-y pan-x pinch-zoom !important; /* Force allow touch scrolling */
+    -webkit-touch-callout: none; /* Prevent iOS callout */
+    -webkit-user-select: none; /* Prevent selection */
+    user-select: none;
     /* Always visible - never hide */
     display: block !important;
 }
@@ -322,23 +325,36 @@ html {
     backface-visibility: hidden;
     /* ALWAYS disable interactions to prevent scroll blocking - even on desktop */
     pointer-events: none !important; /* Force no interactions - prevent scroll blocking */
-    touch-action: pan-y pan-x pinch-zoom !important; /* Force allow all scrolling */
+    /* Critical: allow touch drag scrolling on mobile */
+    touch-action: pan-y pan-x pinch-zoom !important; /* Force allow touch scrolling */
+    -webkit-touch-callout: none; /* Prevent iOS callout menu */
+    -webkit-user-select: none; /* Prevent text selection */
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* Prevent any touch interaction */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
 }
 
-/* Small screens (< 320px / 8cm): extra protection */
+/* Small screens (< 320px / 8cm): extra protection for touch scroll */
 @media (max-width: 320px) {
     .fluid-home-canvas {
         pointer-events: none !important; /* Absolutely no interactions */
-        touch-action: pan-y pan-x pinch-zoom !important; /* Force scrolling */
-        user-select: none; /* Prevent text selection */
+        touch-action: pan-y pan-x pinch-zoom !important; /* Force touch scrolling */
+        -webkit-touch-callout: none;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
     }
     
     .fluid-home-container {
         pointer-events: none !important; /* Container also can't block */
-        touch-action: pan-y pan-x pinch-zoom !important;
+        touch-action: pan-y pan-x pinch-zoom !important; /* Critical for touch scroll */
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
     }
 }
 
