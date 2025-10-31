@@ -265,9 +265,10 @@ class FluidHomePixi {
         
         const handleResize = () => {
             clearTimeout(resizeTimeout);
+            // Strong debouncing: wait 300ms after last resize to avoid over-frequent re-inits
             resizeTimeout = setTimeout(() => {
                 this.handleResize();
-            }, 250);
+            }, 300);
         };
         
         window.addEventListener('resize', handleResize);
@@ -277,12 +278,23 @@ class FluidHomePixi {
         });
         
         // Fix for disappearing image on scroll/resize (mobile issue)
-        // Only check visibility if parent is accidentally hidden, otherwise use CSS classes
+        // Defensive: Only update if dimensions are valid, debounce heavily
         window.addEventListener('scroll', () => {
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
                 const parent = this.canvas.parentElement;
                 if (!parent || !this.app || !this.app.renderer) return;
+                
+                // Defensive check: Ensure container hasn't collapsed
+                const rect = parent.getBoundingClientRect();
+                
+                // CRITICAL: Don't resize if dimensions are too small
+                if (rect.width < 100 || rect.height < 100) {
+                    // Force minimum size if collapsed
+                    parent.style.minWidth = "140px";
+                    parent.style.minHeight = "140px";
+                    return; // Skip resize operation
+                }
                 
                 // Only force visibility if parent is accidentally hidden
                 const parentStyle = window.getComputedStyle(parent);
@@ -291,21 +303,21 @@ class FluidHomePixi {
                     this.canvas.classList.add('canvas-visible');
                 }
                 
-                const rect = parent.getBoundingClientRect();
-                // Always update if dimensions changed or on mobile
-                if (rect.width > 0 && rect.height > 0) {
-                    const currentScrollY = window.scrollY;
-                    // Update if dimensions changed or significant scroll
-                    const shouldUpdate = this.isMobile ? 
-                        true : // Mobile: always update to prevent disappearing
-                        (Math.abs(currentScrollY - lastScrollY) > 50 || 
-                         this.app.screen.width !== rect.width || 
-                         this.app.screen.height !== rect.height);
-                    
-                    if (shouldUpdate) {
-                        try {
-                            const width = parent.offsetWidth > 200 ? parent.offsetWidth : 320;
-                            const height = parent.offsetHeight > 200 ? parent.offsetHeight : 320;
+                const currentScrollY = window.scrollY;
+                // Update if dimensions changed or significant scroll
+                const shouldUpdate = this.isMobile ? 
+                    (Math.abs(currentScrollY - lastScrollY) > 100) : // Mobile: less frequent updates
+                    (Math.abs(currentScrollY - lastScrollY) > 50 || 
+                     this.app.screen.width !== rect.width || 
+                     this.app.screen.height !== rect.height);
+                
+                if (shouldUpdate && rect.width > 0 && rect.height > 0) {
+                    try {
+                        const width = parent.offsetWidth > 200 ? parent.offsetWidth : 320;
+                        const height = parent.offsetHeight > 200 ? parent.offsetHeight : 320;
+                        
+                        // Defensive: Only resize if dimensions are valid
+                        if (width >= 100 && height >= 100) {
                             this.app.renderer.resize(width, height);
                             
                             // Re-center sprite if it exists - validate dimensions first
@@ -329,19 +341,31 @@ class FluidHomePixi {
                                     }
                                 }
                             }
-                        } catch (e) {
-                            console.warn('Error updating renderer on scroll:', e);
                         }
-                        lastScrollY = currentScrollY;
+                    } catch (e) {
+                        console.warn('Error updating renderer on scroll:', e);
                     }
+                    lastScrollY = currentScrollY;
                 }
-            }, this.isMobile ? 50 : 100); // Faster update on mobile
+            }, this.isMobile ? 300 : 150); // Strong debouncing: 300ms mobile, 150ms desktop
         }, { passive: true });
     }
 
     handleResize() {
         const parent = this.canvas.parentElement;
         if (!parent || !this.app || !this.app.renderer) return;
+        
+        // Defensive check: Get actual dimensions
+        const rect = parent.getBoundingClientRect();
+        
+        // CRITICAL: Don't resize if dimensions are too small - this causes disappearance
+        if (rect.width < 100 || rect.height < 100) {
+            // Force minimum size if collapsed
+            parent.style.minWidth = "140px";
+            parent.style.minHeight = "140px";
+            console.warn('Container too small, forcing minimum size:', rect.width, rect.height);
+            return; // Skip resize operation - prevents broken renderer state
+        }
         
         // Only force visibility if parent is accidentally hidden
         const parentStyle = window.getComputedStyle(parent);
@@ -350,18 +374,12 @@ class FluidHomePixi {
             this.canvas.classList.add('canvas-visible');
         }
         
-        // Validate parent/container size
-        const rect = parent.getBoundingClientRect();
-        if (rect.width < 100 || rect.height < 100) {
-            parent.style.minWidth = "150px";
-            parent.style.minHeight = "150px";
-        }
-        
         // Use offsetWidth/offsetHeight with proper validation
         const width = parent.offsetWidth > 200 ? parent.offsetWidth : 320;
         const height = parent.offsetHeight > 200 ? parent.offsetHeight : 320;
         
-        if (width > 0 && height > 0) {
+        // Defensive: Only resize if dimensions are valid
+        if (width >= 100 && height >= 100) {
             try {
                 this.app.renderer.resize(width, height);
                 
@@ -369,6 +387,7 @@ class FluidHomePixi {
                 if (this.sprite && this.isInitialized && this.sprite.texture) {
                     const w = this.app.screen.width;
                     const h = this.app.screen.height;
+                    // Validate all dimensions before operations
                     if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
                         const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.16;
                         this.sprite.scale.set(scale);
