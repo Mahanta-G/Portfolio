@@ -78,8 +78,11 @@ class FluidLogoPixi {
         const w = this.app.screen.width;
         const h = this.app.screen.height;
         
-        // Scale logo - 20% larger than 65% (0.65 * 1.2 = 0.78)
-        const scale = Math.min(w / img.width, h / img.height) * 0.95 * 0.78;
+        // Mobile: adjust scale to ensure logo fits well on small screens
+        // Desktop: 20% larger than 65% (0.65 * 1.2 = 0.78)
+        // Mobile: use more of the available space for better visibility
+        const scaleMultiplier = this.isMobile ? 0.85 : 0.78;
+        const scale = Math.min(w / img.width, h / img.height) * 0.95 * scaleMultiplier;
         const sw = img.width * scale;
         const sh = img.height * scale;
         const x = (w - sw) / 2;
@@ -100,8 +103,9 @@ class FluidLogoPixi {
         // Only get image data from the drawn area
         const imageData = ctx.getImageData(Math.floor(x), Math.floor(y), Math.ceil(sw), Math.ceil(sh));
         
-        // Mobile optimization: larger step = fewer particles
-        const step = this.isMobile ? 2.5 : 1.2;
+        // Mobile optimization: smaller step for better coverage (logo completeness)
+        // Reduced step ensures logo appears complete even on small screens
+        const step = this.isMobile ? 1.8 : 1.2;
         let particleCount = 0;
         
         for (let py = 0; py < sh; py += step) {
@@ -112,14 +116,16 @@ class FluidLogoPixi {
                 const b = imageData.data[i + 2];
                 const alpha = imageData.data[i + 3];
                 
-                if (alpha > 25) {  // Lower threshold for better coverage
+                // Mobile: lower threshold for better logo completeness
+                const alphaThreshold = this.isMobile ? 20 : 25;
+                if (alpha > alphaThreshold) {
                     // Create PixiJS Graphics for each particle
                     const particle = new PIXI.Graphics();
                     
                     // Low neon white color (#f0f0f0)
                     particle.beginFill(0xf0f0f0);
-                    // Mobile: smaller particles for better performance
-                    const particleSize = this.isMobile ? 2.5 : 3.5;
+                    // Mobile: slightly smaller particles but still visible
+                    const particleSize = this.isMobile ? 3 : 3.5;
                     particle.drawCircle(0, 0, particleSize);
                     particle.endFill();
                     
@@ -156,8 +162,11 @@ class FluidLogoPixi {
         canvas.width = w;
         canvas.height = h;
         
-        // Scale text - 20% larger than 65% (0.65 * 1.2 = 0.78)
-        const fontSize = Math.min(w * 0.5, h * 0.7) * 0.78;
+        // Mobile: adjust font size for better visibility on small screens
+        // Desktop: 20% larger than 65% (0.65 * 1.2 = 0.78)
+        // Mobile: use more of available space
+        const scaleMultiplier = this.isMobile ? 0.85 : 0.78;
+        const fontSize = Math.min(w * 0.5, h * 0.7) * scaleMultiplier;
         ctx.font = `bold ${fontSize}px Arial`;
         ctx.fillStyle = '#f0f0f0';  /* Low neon white */
         ctx.textAlign = 'center';
@@ -180,8 +189,8 @@ class FluidLogoPixi {
         ctx.fillText('GM', w / 2, h / 2);
         
         const imageData = ctx.getImageData(0, 0, w, h);
-        // Mobile optimization: larger step = fewer particles
-        const step = this.isMobile ? 8 : 4;
+        // Mobile: smaller step for better text completeness
+        const step = this.isMobile ? 5 : 4;
         let particleCount = 0;
         
         for (let py = 0; py < h; py += step) {

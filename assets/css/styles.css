@@ -292,7 +292,7 @@ html {
     left: 50%;
     transform: translate(calc(-50% - 60px), calc(-50% - 150px));
     z-index: 1;
-    pointer-events: auto;
+    pointer-events: none; /* Don't block scrolling - only canvas handles interactions */
     filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
     visibility: visible;
     opacity: 1;
@@ -300,6 +300,8 @@ html {
     will-change: transform;
     backface-visibility: hidden;
     transform-style: preserve-3d;
+    /* Mobile fix: allow scrolling through container */
+    touch-action: pan-y pinch-zoom; /* Allow vertical scrolling */
 }
 
 .fluid-home-canvas {
@@ -312,6 +314,9 @@ html {
     position: relative;
     will-change: transform;
     backface-visibility: hidden;
+    /* Mobile: allow scrolling - only handle interactions within bounds */
+    pointer-events: auto;
+    touch-action: pan-y; /* Allow vertical scrolling - don't block scroll */
 }
 
 .floating-card {

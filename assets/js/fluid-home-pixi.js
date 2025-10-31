@@ -157,10 +157,33 @@ class FluidHomePixi {
         };
 
         // Support both mouse and touch events
+        // Mobile: use passive events to never block scrolling
         if (this.isMobile) {
-            this.canvas.addEventListener('touchmove', handlePointerMove, { passive: true });
-            this.canvas.addEventListener('touchend', handlePointerLeave);
-            this.canvas.addEventListener('touchcancel', handlePointerLeave);
+            // Mobile: all touch events are passive - never block scrolling
+            this.canvas.addEventListener('touchmove', (e) => {
+                // Always allow scrolling - just track position if possible
+                if (this.sprite && e.touches && e.touches.length > 0) {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const clientX = e.touches[0].clientX;
+                    const clientY = e.touches[0].clientY;
+                    const mx = clientX - rect.left;
+                    const my = clientY - rect.top;
+                    
+                    // Only track if within sprite bounds (but never block scroll)
+                    const spriteBounds = this.sprite.getBounds();
+                    if (mx >= spriteBounds.x && mx <= spriteBounds.x + spriteBounds.width &&
+                        my >= spriteBounds.y && my <= spriteBounds.y + spriteBounds.height) {
+                        this.mousePos.x = mx;
+                        this.mousePos.y = my;
+                    } else {
+                        this.mousePos.x = -1000;
+                        this.mousePos.y = -1000;
+                    }
+                }
+            }, { passive: true }); // Always passive - never block scroll
+            
+            this.canvas.addEventListener('touchend', handlePointerLeave, { passive: true });
+            this.canvas.addEventListener('touchcancel', handlePointerLeave, { passive: true });
         } else {
             this.canvas.addEventListener('mousemove', handlePointerMove);
             this.canvas.addEventListener('mouseleave', handlePointerLeave);
