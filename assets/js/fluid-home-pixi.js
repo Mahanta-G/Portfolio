@@ -9,9 +9,11 @@ class FluidHomePixi {
         this.displacementFilter = null;
         this.isInitialized = false;
         // Mobile detection
-        this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-                        (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) ||
-                        ('ontouchstart' in window);
+        // TESTING: Force desktop mode for testing
+        this.isMobile = false; // Temporarily disabled for testing
+        // this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+        //                 (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) ||
+        //                 ('ontouchstart' in window);
         this.init();
     }
 
