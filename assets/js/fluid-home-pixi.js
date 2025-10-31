@@ -316,13 +316,67 @@ class FluidHomePixi {
 }
 
 // Initialize when DOM is loaded (prevent duplicate initialization)
-if (!window.fluidHomePixiInstance) {
-    document.addEventListener('DOMContentLoaded', () => {
-        const homeCanvas = document.getElementById('fluidHomeCanvas');
-        if (homeCanvas && !homeCanvas.dataset.initialized) {
+document.addEventListener('DOMContentLoaded', () => {
+    const homeCanvas = document.getElementById('fluidHomeCanvas');
+    if (homeCanvas && !window.fluidHomePixiInstance && !homeCanvas.dataset.initialized) {
+        // Check if screen is smaller than 10cm (800px)
+        const isSmallScreen = window.innerWidth <= 800;
+        
+        if (!isSmallScreen) {
+            // Only initialize on larger screens
             homeCanvas.dataset.initialized = 'true';
-            const imagePath = '../assets/images/home.png?' + Date.now();
+            const imagePath = '../assets/images/me.png?' + Date.now();
             window.fluidHomePixiInstance = new FluidHomePixi(homeCanvas, imagePath);
         }
+    }
+    
+    // Initialize GM logo for small screens (< 10cm/800px)
+    const gmLogoCanvas = document.getElementById('heroGmLogoCanvas');
+    if (gmLogoCanvas && !window.heroGmLogoInstance && !gmLogoCanvas.dataset.initialized) {
+        const isSmallScreen = window.innerWidth <= 800;
+        
+        if (isSmallScreen) {
+            // Create GM logo particle effect for mobile
+            gmLogoCanvas.dataset.initialized = 'true';
+            const gmLogoPath = '../assets/images/logo.png?' + Date.now();
+            window.heroGmLogoInstance = new FluidLogoPixi(gmLogoCanvas, gmLogoPath);
+        }
+    }
+    
+    // Handle window resize - switch between home image and GM logo
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const isSmallScreen = window.innerWidth <= 800;
+            const homeCanvas = document.getElementById('fluidHomeCanvas');
+            const gmLogoCanvas = document.getElementById('heroGmLogoCanvas');
+            
+            if (isSmallScreen) {
+                // Small screen: hide home canvas, show GM logo
+                if (homeCanvas && window.fluidHomePixiInstance) {
+                    window.fluidHomePixiInstance.destroy();
+                    window.fluidHomePixiInstance = null;
+                    homeCanvas.style.display = 'none';
+                }
+                if (gmLogoCanvas && !window.heroGmLogoInstance && !gmLogoCanvas.dataset.initialized) {
+                    gmLogoCanvas.dataset.initialized = 'true';
+                    const gmLogoPath = '../assets/images/logo.png?' + Date.now();
+                    window.heroGmLogoInstance = new FluidLogoPixi(gmLogoCanvas, gmLogoPath);
+                }
+            } else {
+                // Large screen: show home canvas, hide GM logo
+                if (gmLogoCanvas && window.heroGmLogoInstance) {
+                    window.heroGmLogoInstance.destroy();
+                    window.heroGmLogoInstance = null;
+                    gmLogoCanvas.style.display = 'none';
+                }
+                if (homeCanvas && !window.fluidHomePixiInstance && !homeCanvas.dataset.initialized) {
+                    homeCanvas.dataset.initialized = 'true';
+                    const imagePath = '../assets/images/me.png?' + Date.now();
+                    window.fluidHomePixiInstance = new FluidHomePixi(homeCanvas, imagePath);
+                }
+            }
+        }, 250);
     });
-}
+});
