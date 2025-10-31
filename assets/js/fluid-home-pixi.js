@@ -32,6 +32,11 @@ class FluidHomePixi {
         this.canvas.style.visibility = 'visible';
         this.canvas.style.opacity = '1';
         
+        // CRITICAL: Ensure touch scrolling works on mobile
+        // Set canvas to not capture touch events - let scrolling work naturally
+        this.canvas.style.pointerEvents = 'none';
+        this.canvas.style.touchAction = 'pan-y pan-x pinch-zoom';
+        
         // Mobile optimization: lower resolution and performance settings
         const maxResolution = this.isMobile ? 1 : 1.5;
         
@@ -185,24 +190,11 @@ class FluidHomePixi {
         if (this.isMobile || isSmallScreen) {
             // Mobile and small screens: completely disable touch/mouse events
             // CRITICAL: Don't add ANY event listeners on mobile/small screens
-            // Even passive listeners can interfere with touch drag scrolling
-            // Canvas has pointer-events: none and touch-action: pan-y to allow scrolling
+            // NO touch event listeners at all - even passive ones can interfere with drag scroll
+            // Canvas has pointer-events: none and touch-action: pan-y pan-x to allow scrolling
+            // The CSS properties are enough - no JavaScript listeners needed
             this.mousePos.x = -1000;
             this.mousePos.y = -1000;
-            
-            // Explicitly prevent any touch event capture on canvas
-            // This ensures touch scrolling works smoothly
-            this.canvas.addEventListener('touchstart', (e) => {
-                // Don't prevent default - allow scroll to work
-            }, { passive: true, capture: false });
-            
-            this.canvas.addEventListener('touchmove', (e) => {
-                // Don't prevent default - allow scroll to work
-            }, { passive: true, capture: false });
-            
-            this.canvas.addEventListener('touchend', (e) => {
-                // Don't prevent default - allow scroll to work
-            }, { passive: true, capture: false });
         } else {
             // Desktop only: add mouse events but still disable swirl animation
             this.canvas.addEventListener('mousemove', handlePointerMove);
