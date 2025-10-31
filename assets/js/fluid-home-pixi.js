@@ -164,13 +164,14 @@ class FluidHomePixi {
         
         // Validate sprite dimensions before scaling
         if (this.sprite.width > 0 && this.sprite.height > 0 && w > 0 && h > 0) {
-            const scale = Math.min(w / this.sprite.width, h / this.sprite.height) * 1.16;
-            this.sprite.scale.set(scale);
-            this.sprite.x = (w - this.sprite.width) / 2;
-            this.sprite.y = (h - this.sprite.height) / 2;
+            // Increased scale multiplier to make image larger (was 1.16, now 1.3)
+            const scale = Math.min(w / this.sprite.width, h / this.sprite.height) * 1.3;
+        this.sprite.scale.set(scale);
+        this.sprite.x = (w - this.sprite.width) / 2;
+        this.sprite.y = (h - this.sprite.height) / 2;
             this.sprite.visible = true;
             this.sprite.alpha = 1;
-            this.app.stage.addChild(this.sprite);
+        this.app.stage.addChild(this.sprite);
         } else {
             console.warn('Invalid sprite dimensions, cannot center');
         }
@@ -247,10 +248,10 @@ class FluidHomePixi {
         // Note: DisplacementFilter is deprecated but still works in v7.3.2
         // We keep scale at 0 (disabled) to prevent any visual effects
         try {
-            this.displacementFilter = new PIXI.filters.DisplacementFilter(this.swirlSprite);
-            this.displacementFilter.scale.x = 0;
-            this.displacementFilter.scale.y = 0;
-            this.sprite.filters = [this.displacementFilter];
+        this.displacementFilter = new PIXI.filters.DisplacementFilter(this.swirlSprite);
+        this.displacementFilter.scale.x = 0;
+        this.displacementFilter.scale.y = 0;
+        this.sprite.filters = [this.displacementFilter];
         } catch (e) {
             // If DisplacementFilter fails, just don't apply any filters
             console.warn('DisplacementFilter not available, skipping filter');
@@ -378,22 +379,17 @@ class FluidHomePixi {
                             if (this.sprite && this.isInitialized && this.sprite.texture) {
                                 const w = this.app.screen.width;
                                 const h = this.app.screen.height;
-                                if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
-                                    const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.16;
-                                    this.sprite.scale.set(scale);
-                                    this.sprite.x = (w - this.sprite.width) / 2;
-                                    this.sprite.y = (h - this.sprite.height) / 2;
-                                    
-                                    // Ensure sprite is visible
-                                    this.sprite.visible = true;
-                                    this.sprite.alpha = 1;
-                                    
-                                    // Ensure displacement filter scale is zero (animations disabled)
-                                    if (this.displacementFilter) {
-                                        this.displacementFilter.scale.x = 0;
-                                        this.displacementFilter.scale.y = 0;
+                                    if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
+                                        // Increased scale to match initial size (1.3 instead of 1.16)
+                                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.3;
+                                        this.sprite.scale.set(scale);
+                                        this.sprite.x = (w - this.sprite.width) / 2;
+                                        this.sprite.y = (h - this.sprite.height) / 2;
+                                        
+                                        // Ensure sprite is visible
+                                        this.sprite.visible = true;
+                                        this.sprite.alpha = 1;
                                     }
-                                }
                             }
                         } catch (e) {
                             console.warn('Error updating renderer on scroll:', e);
@@ -488,7 +484,8 @@ class FluidHomePixi {
                     const h = this.app.screen.height;
                     // Validate all dimensions before operations
                     if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
-                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.16;
+                        // Increased scale to match initial size (1.3 instead of 1.16)
+                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.3;
                         this.sprite.scale.set(scale);
                         this.sprite.x = (w - this.sprite.width) / 2;
                         this.sprite.y = (h - this.sprite.height) / 2;
@@ -511,13 +508,12 @@ class FluidHomePixi {
 
     animate() {
         this.app.ticker.add(() => {
-            // Completely disable swirl animation on ALL devices to prevent scroll blocking
-            // Check screen width - on small screens, don't even try to animate
+            // Check screen width - disable swirl on small screens (< 8cm = 320px) to prevent scroll blocking
             const isSmallScreen = window.innerWidth <= 320;
             
             if (isSmallScreen) {
                 // Small screens (< 8cm): no swirl at all - just static image
-                // Make absolutely sure displacement is disabled
+                // Make absolutely sure displacement is disabled to prevent scroll blocking
                 if (this.displacementFilter) {
                     this.displacementFilter.scale.x = 0;
                     this.displacementFilter.scale.y = 0;
@@ -529,25 +525,13 @@ class FluidHomePixi {
                 return; // Skip all animation on small screens
             }
             
-            // Desktop and larger mobile: Disable swirl completely to prevent scroll blocking
-            // The swirl animation causes scroll blocking issues on all devices
-            if (this.displacementFilter) {
-                this.displacementFilter.scale.x = 0;
-                this.displacementFilter.scale.y = 0;
-            }
-            if (this.swirlSprite) {
-                // Stop swirl sprite rotation
-                this.swirlSprite.rotation = 0;
-            }
-            
-            // Swirl effect completely disabled on all devices - keeping code commented for reference
-            /*
-            // Desktop: Update swirl position and intensity
-            if (this.swirlSprite && this.displacementFilter) {
-                if (this.mousePos.x > -500) {
-                    // Desktop swirl effect
+            // Desktop and larger screens: Enable swirl animation with mouse interaction
+            // Only enable on desktop (not mobile touch devices) to prevent scroll blocking
+            if (!this.isMobile && this.swirlSprite && this.displacementFilter) {
+                if (this.mousePos.x > -500 && this.mousePos.y > -500) {
+                    // Desktop swirl effect when mouse is over canvas
                     const moveSpeed = 0.15;
-                    const targetScale = 30;
+                    const targetScale = 25; // Reduced intensity slightly
                     const scaleSpeed = 0.1;
                     
                     // Move swirl to pointer position
@@ -565,8 +549,16 @@ class FluidHomePixi {
                     this.displacementFilter.scale.x *= 0.9;
                     this.displacementFilter.scale.y *= 0.9;
                 }
+            } else if (this.isMobile) {
+                // Mobile: Keep displacement disabled to prevent scroll blocking
+                if (this.displacementFilter) {
+                    this.displacementFilter.scale.x = 0;
+                    this.displacementFilter.scale.y = 0;
+                }
+                if (this.swirlSprite) {
+                    this.swirlSprite.rotation = 0;
+                }
             }
-            */
         });
     }
 
