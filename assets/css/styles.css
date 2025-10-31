@@ -298,19 +298,23 @@ html {
     z-index: 1;
     pointer-events: none !important; /* Force: Don't block scrolling */
     filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
-    visibility: visible;
-    opacity: 1;
+    visibility: visible !important; /* Force visible */
+    opacity: 1 !important; /* Force visible */
     /* Mobile fix: prevent disappearing on scroll */
     will-change: transform;
     backface-visibility: hidden;
     transform-style: preserve-3d;
     /* Mobile fix: allow touch scrolling - this is critical for drag scroll */
     touch-action: pan-y pan-x pinch-zoom !important; /* Force allow touch scrolling */
-    -webkit-touch-callout: none; /* Prevent iOS callout */
-    -webkit-user-select: none; /* Prevent selection */
-    user-select: none;
+    -webkit-touch-callout: none !important; /* Prevent iOS callout */
+    -webkit-user-select: none !important; /* Prevent selection */
+    user-select: none !important;
     /* Always visible - never hide */
     display: block !important;
+    /* Prevent any interaction that could block scroll */
+    -webkit-tap-highlight-color: transparent !important;
+    /* Ensure it doesn't interfere with scroll */
+    overflow: visible !important;
 }
 
 .fluid-home-canvas {
