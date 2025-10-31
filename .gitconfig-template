@@ -1,0 +1,17 @@
+# Git Configuration Template
+# Copy these settings to your global Git config
+
+[user]
+    name = Your Name
+    email = your.email@example.com
+
+[core]
+    editor = code --wait
+
+[push]
+    default = simple
+
+[init]
+    defaultBranch = main
+
+

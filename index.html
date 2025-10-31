@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaurab Mahanta - Portfolio</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=30">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .landing-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            text-shadow: 0 0 5px #ffffff, 0 0 20px #000, 0 0 30px #000;
+        }
+        .landing-content h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease-out;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+            filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.2));
+        }
+        .landing-content p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+        .landing-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+        .btn-landing {
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid #00d4ff;
+            color: #00d4ff;
+            background: transparent;
+            text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+        }
+        .btn-landing:hover {
+            background: #00d4ff;
+            color: #0a0a0a;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        .btn-landing.primary {
+            background: #00d4ff;
+            color: #0a0a0a;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+        .btn-landing.primary:hover {
+            background: transparent;
+            color: #00d4ff;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.7);
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @media (max-width: 768px) {
+            .landing-content h1 {
+                font-size: 2.5rem;
+            }
+            .landing-content p {
+                font-size: 1.2rem;
+            }
+            .landing-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-container">
+        <div class="landing-content">
+            <h1>Gaurab Mahanta</h1>
+            <p>Full-Stack Developer & Game Developer</p>
+            <div class="landing-buttons">
+                <a href="./pages/home.html" class="btn-landing primary">Enter Portfolio</a>
+                <a href="./pages/contact.html" class="btn-landing">Contact Me</a>
+            </div>
+        </div>
+        
+    </div>
+
+    <script src="./assets/js/particles.js?v=10"></script>
+</body>
+</html>

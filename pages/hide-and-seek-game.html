@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hide-And-Seek Game - Gaurab Mahanta</title>
+    <link rel="stylesheet" href="../assets/css/styles.css?v=30">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- PixiJS for optimized WebGL rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <style>
+        .project-documentation {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+        }
+        
+        .project-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .project-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        
+        .project-header .project-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .project-header .project-tech {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .project-header .tech-tag {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+        
+        .project-content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        
+        .project-content h2 {
+            color: var(--text-primary);
+            font-size: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .project-content h3 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .project-content p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .project-content ul, .project-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .project-content li {
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+        
+        .project-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .project-content a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+        
+        .project-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .project-image {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            aspect-ratio: 16/9;
+        }
+        
+        .project-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .project-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-item {
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .feature-item i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-item h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .download-section {
+            background: var(--bg-card);
+            border: 2px solid var(--primary-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 3rem 0;
+            text-align: center;
+        }
+        
+        .download-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .download-link {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--gradient-primary);
+            color: var(--bg-primary);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .download-link:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .info-box {
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0.5rem;
+        }
+        
+        .info-box p {
+            margin: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .project-header h1 {
+                font-size: 2rem;
+            }
+            
+            .project-content h2 {
+                font-size: 1.5rem;
+            }
+            
+            .project-images {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-logo">
+            <a href="home.html" style="display: flex; padding: 0; margin: 0;">
+                <div class="logo-container" id="logoContainer">
+                    <canvas class="logo-canvas" id="logoCanvas"></canvas>
+                </div>
+            </a>
+        </div>
+        
+        <div class="nav-menu" id="nav-menu">
+            <a href="home.html" class="nav-link">Home</a>
+            <a href="skills.html" class="nav-link">Skills</a>
+            <a href="projects.html" class="nav-link">Projects</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+            <a href="hobbies.html" class="nav-link">Hobbies</a>
+        </div>
+        
+        <div class="hamburger" id="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="project-documentation">
+        <a href="projects.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Projects
+        </a>
+
+        <div class="project-header">
+            <h1>Hide-And-Seek Game</h1>
+            <p class="project-subtitle">Welcome to the Hide-And-Seek game, developed using Unreal Engine!</p>
+            <p class="project-subtitle">A complete game setup featuring AI-driven hiders and seekers, providing a unique and engaging gameplay experience.</p>
+            <div class="project-tech">
+                <span class="tech-tag">Unreal Engine</span>
+                <span class="tech-tag">C++</span>
+                <span class="tech-tag">Blender</span>
+                <span class="tech-tag">AI Integration</span>
+                <span class="tech-tag">Game Development</span>
+            </div>
+        </div>
+
+        <!-- Game Screenshots -->
+        <section class="project-content">
+            <h2>Game Screenshots</h2>
+            <div class="project-images">
+                <div class="project-image">
+                    <img src="../assets/images/hide-seek-menu.jpg" alt="Hide-And-Seek Game Main Menu">
+                </div>
+                <div class="project-image">
+                    <img src="../assets/images/hide-seek-gameplay.jpg" alt="Hide-And-Seek Gameplay">
+                </div>
+                <div class="project-image">
+                    <img src="../assets/images/hide-seek-gameover.jpg" alt="Hide-And-Seek Game Over Screen">
+                </div>
+                <div class="project-image">
+                    <img src="../assets/images/hide-seek-scene.jpg" alt="Hide-And-Seek Game Scene">
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="project-content">
+            <h2>Features</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="fas fa-robot"></i>
+                    <h4>AI-powered Hiders and Seekers</h4>
+                    <p>Enjoy dynamic and strategic gameplay with AI that enhances the fun of hide-and-seek.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-gamepad"></i>
+                    <h4>Built with Unreal Engine</h4>
+                    <p>A polished gaming experience developed using the Unreal Engine platform.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-users"></i>
+                    <h4>Multiplayer Support</h4>
+                    <p>Play with friends in multiplayer mode with engaging gameplay mechanics.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-cogs"></i>
+                    <h4>Modular Design</h4>
+                    <p>Well-structured codebase with modular components for easy expansion.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Requirements Section -->
+        <section class="project-content">
+            <h2>Requirements</h2>
+            <p>To run this game, you will need:</p>
+            <ul>
+                <li><strong>Windows OS</strong> - Windows 10 or later recommended</li>
+                <li><strong>DirectX 11 or higher</strong> - For graphics rendering</li>
+                <li><strong>Graphics Card</strong> - Minimum specs should meet Unreal Engine requirements</li>
+                <li><strong>Sufficient Storage Space</strong> - For game files and assets</li>
+            </ul>
+        </section>
+
+        <!-- Download Section -->
+        <section class="project-content">
+            <div class="download-section">
+                <h3>Download the Game</h3>
+                <p>The game files are available for download from Google Drive. Please download the files from the link below and follow the installation instructions.</p>
+                <a href="https://drive.google.com/drive/folders/1VWuKISb2Tln-eYGDXhDSWEvbiGiIafjI?usp=drive_link" target="_blank" class="download-link">
+                    <i class="fab fa-google-drive"></i> Download from Google Drive
+                </a>
+            </div>
+        </section>
+
+        <!-- Installation Section -->
+        <section class="project-content">
+            <h2>Installation</h2>
+            
+            <h3>1. Downloading the Game Setup</h3>
+            <p>Download the game files from the Google Drive link provided above. The files have been uploaded there due to size limitations of GitHub.</p>
+            
+            <h3>2. Installing the Game Files</h3>
+            <p>After downloading, follow these steps:</p>
+            <ol>
+                <li>Extract the downloaded files to your desired location</li>
+                <li>Locate the extracted folder and navigate to <code>FinalYear/Content/Paks</code></li>
+                <li>Place the downloaded <code>.pak</code> file in this folder</li>
+            </ol>
+            
+            <div class="info-box">
+                <p><strong>Note:</strong> Make sure the file structure matches: <code>FinalYear/Content/Paks/YourPakFile.pak</code></p>
+            </div>
+            
+            <h3>3. Running the Game</h3>
+            <p>Once the installation is complete:</p>
+            <ol>
+                <li>Navigate to the game directory</li>
+                <li>Look for the <code>HideAndSeek.exe</code> (or equivalent executable file)</li>
+                <li>Double-click to run the game</li>
+            </ol>
+        </section>
+
+        <!-- How to Play Section -->
+        <section class="project-content">
+            <h2>How to Play</h2>
+            <p>Once the game is running:</p>
+            
+            <h3>Starting the Game</h3>
+            <p>Choose the number of players and whether you'd like to play as a hider or a seeker.</p>
+            
+            <h3>Objective</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="fas fa-user-secret"></i>
+                    <h4>Hiders</h4>
+                    <p>Find a good hiding spot and avoid being caught by the seekers. Use the environment to your advantage!</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-search"></i>
+                    <h4>Seekers</h4>
+                    <p>Locate the hiders within the given time limit. Use your wits and observation skills to find them!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Documentation Section -->
+        <section class="project-content">
+            <h2>Documentation</h2>
+            <p>This was a game I made for my final year project. I will be adding detailed documentation of the work in the repository, so do check it out if you want to know how it was made or why.</p>
+            
+            <div class="info-box">
+                <p><strong>Future Updates:</strong> I am working on making it better, more user-friendly, and much more interactive. I will definitely upload it on Epic Games or on my portfolio somewhere by the end of this year, along with multiplayer functionality plus a game mode with the classic team deathmatch or free-for-all gameplay with guns so that you guys could have fun playing with your friends. So do keep an eye out!</p>
+            </div>
+        </section>
+
+        <!-- Conclusion -->
+        <section class="project-content">
+            <div class="info-box" style="border-left-color: var(--accent-color);">
+                <p style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Enjoy the Fun and Thrill!</p>
+                <p>Enjoy the fun and thrill of the game! Have a great time playing Hide-And-Seek with friends or challenging yourself against the AI.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Gaurab Mahanta. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com/Mahanta-G" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/mahanta1412/" target="_blank" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="mailto:mahanta1412@gmail.com" class="social-link"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/fluid-logo-pixi.js?v=24"></script>
+    <script src="../assets/js/script.js?v=10"></script>
+    <script src="../assets/js/particles.js?v=10"></script>
+</body>
+</html>

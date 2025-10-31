@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaurab Mahanta - Skills & Journey</title>
+    <link rel="stylesheet" href="../assets/css/styles.css?v=30">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- PixiJS for optimized WebGL rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-logo">
+            <a href="home.html" style="display: flex; padding: 0; margin: 0;">
+                <div class="logo-container" id="logoContainer">
+                    <canvas class="logo-canvas" id="logoCanvas"></canvas>
+                </div>
+            </a>
+        </div>
+        
+        <div class="nav-menu" id="nav-menu">
+            <a href="home.html" class="nav-link">Home</a>
+            <a href="skills.html" class="nav-link active">Skills</a>
+            <a href="projects.html" class="nav-link">Projects</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+            <a href="hobbies.html" class="nav-link">Hobbies</a>
+        </div>
+        
+        <div class="hamburger" id="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Skills Section -->
+        <section class="page-section active">
+            <div class="section-container">
+                <h2 class="section-title">Skills & Journey</h2>
+                <div class="skills-grid">
+                    <div class="skill-category">
+                        <h3>Programming Languages</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Java</span>
+                            <span class="skill-tag">Python</span>
+                            <span class="skill-tag">C/C++</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">SQL</span>
+                            <span class="skill-tag">HTML/CSS</span>
+                            <span class="skill-tag">R</span>
+                        </div>
+                    </div>
+                    <div class="skill-category">
+                        <h3>Frameworks & Libraries</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">React</span>
+                            <span class="skill-tag">Node.js</span>
+                            <span class="skill-tag">Django</span>
+                            <span class="skill-tag">Express.js</span>
+                            <span class="skill-tag">Pandas</span>
+                            <span class="skill-tag">NumPy</span>
+                            <span class="skill-tag">Matplotlib</span>
+                        </div>
+                    </div>
+                    <div class="skill-category">
+                        <h3>Development Tools</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Git</span>
+                            <span class="skill-tag">VS Code</span>
+                            <span class="skill-tag">Unreal Engine</span>
+                            <span class="skill-tag">Unity</span>
+                            <span class="skill-tag">Blender</span>
+                            <span class="skill-tag">PyCharm</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Experience Timeline -->
+                <div class="timeline-container">
+                    <h3>Professional Journey</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>Technical Lead</h4>
+                                <p class="timeline-company">Nascent Society, Computer Science Society</p>
+                                <p class="timeline-date">Jan 2023 - Jul 2024</p>
+                                <p>Led workshops and tech events, providing hands-on experience in emerging technologies to students in Guwahati.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>Product Lead (Battle System & Raiding)</h4>
+                                <p class="timeline-company">SOFI, Discord Bot</p>
+                                <p class="timeline-date">Jun 2023 - Feb 2024</p>
+                                <p>Designed and developed battle mechanics, optimizing real-time performance for 50,000+ active users.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>Software Intern</h4>
+                                <p class="timeline-company">NEEPCO</p>
+                                <p class="timeline-date">Jun 2023 - Jul 2023</p>
+                                <p>Built Asset Management Web-App for tracking 500+ assets with secure database encryption.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>Project Intern</h4>
+                                <p class="timeline-company">APDCL</p>
+                                <p class="timeline-date">Sep 2022</p>
+                                <p>Built full-stack web app using Node.js and TomTom API to map 1,000+ transformers in real-time.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Gaurab Mahanta. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com/Mahanta-G" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/mahanta1412/" target="_blank" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="mailto:mahanta1412@gmail.com" class="social-link"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/fluid-logo-pixi.js?v=24"></script>
+    <script src="../assets/js/script.js?v=10"></script>
+    <script src="../assets/js/particles.js?v=10"></script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaurab Mahanta - Projects</title>
+    <link rel="stylesheet" href="../assets/css/styles.css?v=30">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- PixiJS for optimized WebGL rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-logo">
+            <a href="home.html" style="display: flex; padding: 0; margin: 0;">
+                <div class="logo-container" id="logoContainer">
+                    <canvas class="logo-canvas" id="logoCanvas"></canvas>
+                </div>
+            </a>
+        </div>
+        
+        <div class="nav-menu" id="nav-menu">
+            <a href="home.html" class="nav-link">Home</a>
+            <a href="skills.html" class="nav-link">Skills</a>
+            <a href="projects.html" class="nav-link active">Projects</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+            <a href="hobbies.html" class="nav-link">Hobbies</a>
+        </div>
+        
+        <div class="hamburger" id="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Projects Section -->
+        <section class="page-section active">
+            <div class="section-container">
+                <h2 class="section-title">Featured Projects</h2>
+                <div class="projects-grid">
+                    <div class="project-card" data-category="game">
+                        <a href="hide-and-seek-game.html" style="text-decoration: none; color: inherit;">
+                            <div class="project-image">
+                                <div class="project-placeholder">
+                                    <i class="fas fa-gamepad"></i>
+                                </div>
+                            </div>
+                            <div class="project-content">
+                                <h3>Hide-And-Seek Game</h3>
+                                <p class="project-tech">Unreal Engine, Blender, C++, Git</p>
+                                <p>Multiplayer and single-player hide-and-seek game with advanced game mechanics and AI integration for engaging player experiences.</p>
+                                <div class="project-features">
+                                    <span class="feature-tag">Multiplayer</span>
+                                    <span class="feature-tag">AI Integration</span>
+                                    <span class="feature-tag">Modular Design</span>
+                                </div>
+                                <div style="margin-top: 1rem;">
+                                    <span style="color: var(--primary-color); font-weight: 600;">View Details →</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="project-card" data-category="web">
+                        <div class="project-image">
+                            <div class="project-placeholder">
+                                <i class="fas fa-database"></i>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3>Asset Management Web-App</h3>
+                            <p class="project-tech">Full-Stack Web Development</p>
+                            <p>Efficient tracking and management system for 500+ assets with secure database encryption and real-time inventory control.</p>
+                            <div class="project-features">
+                                <span class="feature-tag">Real-time Tracking</span>
+                                <span class="feature-tag">Secure Encryption</span>
+                                <span class="feature-tag">40% Efficiency Gain</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card" data-category="data">
+                        <div class="project-image">
+                            <div class="project-placeholder">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3>Music Recommendation System</h3>
+                            <p class="project-tech">Python, Sklearn, Pandas, Matplotlib</p>
+                            <p>Content-based song recommender system processing 500,000+ songs using cosine similarity and advanced data visualization.</p>
+                            <div class="project-features">
+                                <span class="feature-tag">Machine Learning</span>
+                                <span class="feature-tag">Data Visualization</span>
+                                <span class="feature-tag">500K+ Songs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card" data-category="web">
+                        <div class="project-image">
+                            <div class="project-placeholder">
+                                <i class="fas fa-map"></i>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3>Transformer Mapping System</h3>
+                            <p class="project-tech">Node.js, Express.js, React.js, TomTom API</p>
+                            <p>Real-time mapping system for 1,000+ transformers with overload detection and color-coded alerts, improving update speed by 30%.</p>
+                            <div class="project-features">
+                                <span class="feature-tag">Real-time Mapping</span>
+                                <span class="feature-tag">Overload Detection</span>
+                                <span class="feature-tag">30% Speed Improvement</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Gaurab Mahanta. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com/Mahanta-G" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/mahanta1412/" target="_blank" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="mailto:mahanta1412@gmail.com" class="social-link"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/fluid-logo-pixi.js?v=24"></script>
+    <script src="../assets/js/script.js?v=10"></script>
+    <script src="../assets/js/particles.js?v=10"></script>
+</body>
+</html>
