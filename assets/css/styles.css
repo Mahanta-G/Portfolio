@@ -366,7 +366,7 @@ html {
 }
 
 /* Desktop: enable pointer events for swirl animation (only on larger screens) */
-@media (min-width: 769px) {
+@media (min-width: 641px) {
     .fluid-home-canvas {
         pointer-events: auto !important; /* Enable mouse events on desktop for swirl animation */
     }

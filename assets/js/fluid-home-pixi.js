@@ -39,8 +39,16 @@ class FluidHomePixi {
         // Ensure canvas is visible - set CSS class for visibility management
         this.canvas.classList.add('canvas-visible');
         // Desktop: enable pointer events for swirl animation, Mobile: disable to allow scrolling
-        if (!this.isMobile && window.innerWidth > 320) {
-            this.canvas.style.pointerEvents = 'auto'; // Enable mouse events on desktop
+        // Note: CSS media query handles pointer-events, but we also set it here as fallback
+        const isDesktop = !this.isMobile && window.innerWidth > 640;
+        if (isDesktop) {
+            // Force enable pointer events on desktop (CSS !important will take precedence, but this helps)
+            this.canvas.style.pointerEvents = 'auto';
+            // Also ensure parent allows pointer events to reach child
+            const container = this.canvas.parentElement;
+            if (container) {
+                container.style.pointerEvents = 'none'; // Parent stays none, but child can receive events
+            }
         } else {
             this.canvas.style.pointerEvents = 'none'; // Disable on mobile for scrolling
         }
@@ -251,6 +259,9 @@ class FluidHomePixi {
         this.swirlSprite.anchor.set(0.5);
         this.swirlSprite.scale.set(0.8);
         this.swirlSprite.alpha = 0; // Start invisible
+        // Initialize swirl sprite at center of canvas
+        this.swirlSprite.x = this.app.screen.width / 2;
+        this.swirlSprite.y = this.app.screen.height / 2;
         
         // Create displacement filter (using deprecated class for PixiJS v7.3.2 compatibility)
         // Note: DisplacementFilter is deprecated but still works in v7.3.2
@@ -289,6 +300,7 @@ class FluidHomePixi {
         // Support both mouse and touch events
         // Check screen width - disable all interactions on small screens to allow touch scrolling
         const isSmallScreen = window.innerWidth <= 320;
+        const isDesktop = !this.isMobile && window.innerWidth > 640;
         
         if (this.isMobile || isSmallScreen) {
             // Mobile and small screens: completely disable touch/mouse events
@@ -298,9 +310,9 @@ class FluidHomePixi {
             // The CSS properties are enough - no JavaScript listeners needed
             this.mousePos.x = -1000;
             this.mousePos.y = -1000;
-        } else {
-            // Desktop only: add mouse events but still disable swirl animation
-            this.canvas.addEventListener('mousemove', handlePointerMove);
+        } else if (isDesktop) {
+            // Desktop only: add mouse events for swirl animation
+            this.canvas.addEventListener('mousemove', handlePointerMove, { passive: true });
             this.canvas.addEventListener('mouseleave', handlePointerLeave);
         }
 
@@ -526,16 +538,19 @@ class FluidHomePixi {
             
             // Desktop and larger screens: Enable swirl animation with mouse interaction
             // Only enable on desktop (not mobile touch devices) to prevent scroll blocking
-            if (!this.isMobile && this.swirlSprite && this.displacementFilter) {
+            const isDesktop = !this.isMobile && window.innerWidth > 640;
+            if (isDesktop && this.swirlSprite && this.displacementFilter) {
                 if (this.mousePos.x > -500 && this.mousePos.y > -500) {
                     // Desktop swirl effect when mouse is over canvas
                     const moveSpeed = 0.15;
                     const targetScale = 25; // Reduced intensity slightly
                     const scaleSpeed = 0.1;
                     
-                    // Move swirl to pointer position
-                    this.swirlSprite.x += (this.mousePos.x - this.swirlSprite.x) * moveSpeed;
-                    this.swirlSprite.y += (this.mousePos.y - this.swirlSprite.y) * moveSpeed;
+                    // Move swirl to pointer position (normalize to canvas coordinates)
+                    const normalizedX = this.mousePos.x;
+                    const normalizedY = this.mousePos.y;
+                    this.swirlSprite.x += (normalizedX - this.swirlSprite.x) * moveSpeed;
+                    this.swirlSprite.y += (normalizedY - this.swirlSprite.y) * moveSpeed;
                     
                     // Fade in displacement
                     this.displacementFilter.scale.x += (targetScale - this.displacementFilter.scale.x) * scaleSpeed;
@@ -548,7 +563,7 @@ class FluidHomePixi {
                     this.displacementFilter.scale.x *= 0.9;
                     this.displacementFilter.scale.y *= 0.9;
                 }
-            } else if (this.isMobile) {
+            } else if (this.isMobile || !isDesktop) {
                 // Mobile: Keep displacement disabled to prevent scroll blocking
                 if (this.displacementFilter) {
                     this.displacementFilter.scale.x = 0;
