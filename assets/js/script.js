@@ -126,16 +126,20 @@ class PortfolioApp {
                 card.addEventListener('mouseleave', () => {
                     card.style.transform = 'scale(1) rotate(0deg)';
                 });
-            }
-
-            // Mobile: disable parallax to prevent cards floating above image
-            if (!isMobile) {
+                
                 // Parallax effect on scroll (desktop only)
                 window.addEventListener('scroll', () => {
                     const scrolled = window.pageYOffset;
                     const rate = scrolled * -0.5 * speed;
                     card.style.transform = `translateY(${rate}px)`;
                 }, { passive: true });
+            } else {
+                // Mobile: completely disable any transform manipulation
+                // Force cards to stay in place using CSS !important rules
+                card.style.transform = 'translateZ(0)';
+                
+                // Remove any existing scroll listeners that might interfere
+                // The CSS !important rules will override any JS transforms
             }
         });
     }

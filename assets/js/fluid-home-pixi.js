@@ -186,19 +186,24 @@ class FluidHomePixi {
         });
         
         // Fix for disappearing image on scroll (mobile issue)
+        // Mobile: more aggressive resize and re-centering on scroll
         window.addEventListener('scroll', () => {
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
                 const parent = this.canvas.parentElement;
                 if (parent) {
                     const rect = parent.getBoundingClientRect();
-                    // Only update if element is visible and dimensions changed
+                    // Mobile: always update on scroll to prevent disappearing
                     if (rect.width > 0 && rect.height > 0 && this.app) {
-                        // Check if scroll position changed significantly (mobile fix)
                         const currentScrollY = window.scrollY;
-                        if (Math.abs(currentScrollY - lastScrollY) > 50 || 
-                            this.app.screen.width !== rect.width || 
-                            this.app.screen.height !== rect.height) {
+                        // Mobile: update more frequently (every scroll) to prevent disappearing
+                        const shouldUpdate = this.isMobile ? 
+                            true : // Mobile: always update
+                            (Math.abs(currentScrollY - lastScrollY) > 50 || 
+                             this.app.screen.width !== rect.width || 
+                             this.app.screen.height !== rect.height);
+                        
+                        if (shouldUpdate) {
                             this.app.renderer.resize(rect.width, rect.height);
                             // Re-center sprite if it exists
                             if (this.sprite && this.isInitialized) {
@@ -208,12 +213,18 @@ class FluidHomePixi {
                                 this.sprite.scale.set(scale);
                                 this.sprite.x = (w - this.sprite.width) / 2;
                                 this.sprite.y = (h - this.sprite.height) / 2;
+                                
+                                // Mobile: ensure displacement filter scale is zero
+                                if (this.isMobile && this.displacementFilter) {
+                                    this.displacementFilter.scale.x = 0;
+                                    this.displacementFilter.scale.y = 0;
+                                }
                             }
                             lastScrollY = currentScrollY;
                         }
                     }
                 }
-            }, 100);
+            }, this.isMobile ? 50 : 100); // Faster update on mobile
         }, { passive: true });
     }
 
@@ -241,13 +252,23 @@ class FluidHomePixi {
 
     animate() {
         this.app.ticker.add(() => {
-            // Update swirl position and intensity
+            // Mobile: completely disable swirl effect to prevent scroll blocking
+            if (this.isMobile) {
+                // On mobile, keep displacement at zero - no swirl effect
+                if (this.displacementFilter) {
+                    this.displacementFilter.scale.x = 0;
+                    this.displacementFilter.scale.y = 0;
+                }
+                return; // Skip all swirl animation on mobile
+            }
+            
+            // Desktop: Update swirl position and intensity
             if (this.swirlSprite && this.displacementFilter) {
                 if (this.mousePos.x > -500) {
-                    // Mobile optimization: slower movement, less intensity
-                    const moveSpeed = this.isMobile ? 0.1 : 0.15;
-                    const targetScale = this.isMobile ? 15 : 30; // Less distortion on mobile
-                    const scaleSpeed = this.isMobile ? 0.15 : 0.1;
+                    // Desktop swirl effect
+                    const moveSpeed = 0.15;
+                    const targetScale = 30;
+                    const scaleSpeed = 0.1;
                     
                     // Move swirl to pointer position
                     this.swirlSprite.x += (this.mousePos.x - this.swirlSprite.x) * moveSpeed;
@@ -257,13 +278,12 @@ class FluidHomePixi {
                     this.displacementFilter.scale.x += (targetScale - this.displacementFilter.scale.x) * scaleSpeed;
                     this.displacementFilter.scale.y += (targetScale - this.displacementFilter.scale.y) * scaleSpeed;
                     
-                    // Rotate the swirl for animated effect (slower on mobile)
-                    this.swirlSprite.rotation += this.isMobile ? 0.03 : 0.05;
+                    // Rotate the swirl for animated effect
+                    this.swirlSprite.rotation += 0.05;
                 } else {
                     // Fade out displacement when pointer leaves
-                    const fadeSpeed = this.isMobile ? 0.92 : 0.9;
-                    this.displacementFilter.scale.x *= fadeSpeed;
-                    this.displacementFilter.scale.y *= fadeSpeed;
+                    this.displacementFilter.scale.x *= 0.9;
+                    this.displacementFilter.scale.y *= 0.9;
                 }
             }
         });

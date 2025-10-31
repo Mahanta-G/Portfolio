@@ -103,9 +103,9 @@ class FluidLogoPixi {
         // Only get image data from the drawn area
         const imageData = ctx.getImageData(Math.floor(x), Math.floor(y), Math.ceil(sw), Math.ceil(sh));
         
-        // Mobile optimization: much smaller step for complete logo coverage
+        // Mobile optimization: even smaller step for complete logo coverage
         // Smaller step = denser particles = more complete logo on mobile
-        const step = this.isMobile ? 1.4 : 1.2;
+        const step = this.isMobile ? 1.2 : 1.2; // Same density as desktop on mobile
         let particleCount = 0;
         
         for (let py = 0; py < sh; py += step) {
@@ -117,7 +117,7 @@ class FluidLogoPixi {
                 const alpha = imageData.data[i + 3];
                 
                 // Mobile: lower threshold for better logo completeness
-                const alphaThreshold = this.isMobile ? 18 : 25;
+                const alphaThreshold = this.isMobile ? 15 : 25; // Even lower for mobile
                 if (alpha > alphaThreshold) {
                     // Create PixiJS Graphics for each particle
                     const particle = new PIXI.Graphics();
@@ -125,7 +125,7 @@ class FluidLogoPixi {
                     // Low neon white color (#f0f0f0)
                     particle.beginFill(0xf0f0f0);
                     // Mobile: slightly larger particles for better visibility
-                    const particleSize = this.isMobile ? 3.2 : 3.5;
+                    const particleSize = this.isMobile ? 3.5 : 3.5; // Same size as desktop on mobile
                     particle.drawCircle(0, 0, particleSize);
                     particle.endFill();
                     
