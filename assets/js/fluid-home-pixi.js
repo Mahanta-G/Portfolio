@@ -38,27 +38,23 @@ class FluidHomePixi {
         
         // Ensure canvas is visible - set CSS class for visibility management
         this.canvas.classList.add('canvas-visible');
+        // TESTING: Enable pointer events everywhere for testing
         // Desktop: enable pointer events for swirl animation, Mobile: disable to allow scrolling
         // Note: CSS media query handles pointer-events, but we also set it here as fallback
-        const isDesktop = !this.isMobile && window.innerWidth > 640;
-        if (isDesktop) {
-            // Force enable pointer events on desktop (CSS !important will take precedence, but this helps)
+        // const isDesktop = !this.isMobile && window.innerWidth > 640;
+        // if (isDesktop) {
+            // TESTING: Force enable pointer events everywhere
             this.canvas.style.pointerEvents = 'auto';
-            // Also ensure parent allows pointer events to reach child
-            const container = this.canvas.parentElement;
-            if (container) {
-                container.style.pointerEvents = 'none'; // Parent stays none, but child can receive events
-            }
-        } else {
-            this.canvas.style.pointerEvents = 'none'; // Disable on mobile for scrolling
-        }
+        // } else {
+        //     this.canvas.style.pointerEvents = 'none'; // Disable on mobile for scrolling
+        // }
         this.canvas.style.touchAction = 'pan-y pan-x pinch-zoom';
         
         // Also set parent container
         const container = this.canvas.parentElement;
         if (container) {
             container.classList.add('container-visible');
-            container.style.pointerEvents = 'none';
+            container.style.pointerEvents = 'none'; // Parent stays none, but child can receive events
             container.style.touchAction = 'pan-y pan-x pinch-zoom';
         }
         
@@ -180,8 +176,8 @@ class FluidHomePixi {
         
         // Validate sprite dimensions before scaling
         if (this.sprite.width > 0 && this.sprite.height > 0 && w > 0 && h > 0) {
-            // Increased scale multiplier to make image larger (now 1.8x)
-            const scale = Math.min(w / this.sprite.width, h / this.sprite.height) * 1.8;
+            // Increased scale multiplier to make image larger (now 2.7x = 1.8x * 1.5)
+            const scale = Math.min(w / this.sprite.width, h / this.sprite.height) * 2.7;
         this.sprite.scale.set(scale);
         this.sprite.x = (w - this.sprite.width) / 2;
         this.sprite.y = (h - this.sprite.height) / 2;
@@ -192,17 +188,18 @@ class FluidHomePixi {
             console.warn('Invalid sprite dimensions, cannot center');
         }
         
+        // TESTING: Comment out mobile/small screen checks - enable swirl everywhere
         // Check screen width - disable swirl completely on small screens (< 8cm = 320px)
-        const isSmallScreen = window.innerWidth <= 320;
+        // const isSmallScreen = window.innerWidth <= 320;
         
-        if (!isSmallScreen) {
+        // if (!isSmallScreen) {
             // Only create swirl on larger screens, but still disable animation
         this.createSwirlDisplacement();
-        } else {
-            // Small screens: don't create swirl at all - just static image
-            this.swirlSprite = null;
-            this.displacementFilter = null;
-        }
+        // } else {
+        //     // Small screens: don't create swirl at all - just static image
+        //     this.swirlSprite = null;
+        //     this.displacementFilter = null;
+        // }
         
         this.animate();
     }
@@ -297,24 +294,25 @@ class FluidHomePixi {
             this.mousePos.y = -1000;
         };
 
+        // TESTING: Comment out mobile/small screen checks - enable events everywhere
         // Support both mouse and touch events
         // Check screen width - disable all interactions on small screens to allow touch scrolling
-        const isSmallScreen = window.innerWidth <= 320;
-        const isDesktop = !this.isMobile && window.innerWidth > 640;
+        // const isSmallScreen = window.innerWidth <= 320;
+        // const isDesktop = !this.isMobile && window.innerWidth > 640;
         
-        if (this.isMobile || isSmallScreen) {
-            // Mobile and small screens: completely disable touch/mouse events
-            // CRITICAL: Don't add ANY event listeners on mobile/small screens
-            // NO touch event listeners at all - even passive ones can interfere with drag scroll
-            // Canvas has pointer-events: none and touch-action: pan-y pan-x to allow scrolling
-            // The CSS properties are enough - no JavaScript listeners needed
-            this.mousePos.x = -1000;
-            this.mousePos.y = -1000;
-        } else if (isDesktop) {
-            // Desktop only: add mouse events for swirl animation
+        // if (this.isMobile || isSmallScreen) {
+        //     // Mobile and small screens: completely disable touch/mouse events
+        //     // CRITICAL: Don't add ANY event listeners on mobile/small screens
+        //     // NO touch event listeners at all - even passive ones can interfere with drag scroll
+        //     // Canvas has pointer-events: none and touch-action: pan-y pan-x to allow scrolling
+        //     // The CSS properties are enough - no JavaScript listeners needed
+        //     this.mousePos.x = -1000;
+        //     this.mousePos.y = -1000;
+        // } else if (isDesktop) {
+            // TESTING: Enable mouse events everywhere
             this.canvas.addEventListener('mousemove', handlePointerMove, { passive: true });
             this.canvas.addEventListener('mouseleave', handlePointerLeave);
-        }
+        // }
 
         // Add resize and scroll listeners (mobile fix for disappearing image)
         let resizeTimeout;
@@ -391,8 +389,8 @@ class FluidHomePixi {
                                 const w = this.app.screen.width;
                                 const h = this.app.screen.height;
                                     if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
-                                        // Increased scale to match initial size (1.8x)
-                                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.8;
+                                        // Increased scale to match initial size (2.7x = 1.8x * 1.5)
+                                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 2.7;
                                         this.sprite.scale.set(scale);
                                         this.sprite.x = (w - this.sprite.width) / 2;
                                         this.sprite.y = (h - this.sprite.height) / 2;
@@ -495,8 +493,8 @@ class FluidHomePixi {
                     const h = this.app.screen.height;
                     // Validate all dimensions before operations
                     if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
-                        // Increased scale to match initial size (1.8x)
-                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.8;
+                        // Increased scale to match initial size (2.7x = 1.8x * 1.5)
+                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 2.7;
                         this.sprite.scale.set(scale);
                         this.sprite.x = (w - this.sprite.width) / 2;
                         this.sprite.y = (h - this.sprite.height) / 2;
@@ -519,27 +517,30 @@ class FluidHomePixi {
 
     animate() {
         this.app.ticker.add(() => {
+            // TESTING: Comment out mobile/small screen checks - enable swirl everywhere
             // Check screen width - disable swirl on small screens (< 8cm = 320px) to prevent scroll blocking
-            const isSmallScreen = window.innerWidth <= 320;
+            // const isSmallScreen = window.innerWidth <= 320;
             
-            if (isSmallScreen) {
-                // Small screens (< 8cm): no swirl at all - just static image
-                // Make absolutely sure displacement is disabled to prevent scroll blocking
-                if (this.displacementFilter) {
-                    this.displacementFilter.scale.x = 0;
-                    this.displacementFilter.scale.y = 0;
-                }
-                if (this.swirlSprite) {
-                    // Stop any swirl sprite rotation
-                    this.swirlSprite.rotation = 0;
-                }
-                return; // Skip all animation on small screens
-            }
+            // if (isSmallScreen) {
+            //     // Small screens (< 8cm): no swirl at all - just static image
+            //     // Make absolutely sure displacement is disabled to prevent scroll blocking
+            //     if (this.displacementFilter) {
+            //         this.displacementFilter.scale.x = 0;
+            //         this.displacementFilter.scale.y = 0;
+            //     }
+            //     if (this.swirlSprite) {
+            //         // Stop any swirl sprite rotation
+            //         this.swirlSprite.rotation = 0;
+            //     }
+            //     return; // Skip all animation on small screens
+            // }
             
+            // TESTING: Enable swirl animation everywhere for testing
             // Desktop and larger screens: Enable swirl animation with mouse interaction
             // Only enable on desktop (not mobile touch devices) to prevent scroll blocking
-            const isDesktop = !this.isMobile && window.innerWidth > 640;
-            if (isDesktop && this.swirlSprite && this.displacementFilter) {
+            // const isDesktop = !this.isMobile && window.innerWidth > 640;
+            // if (isDesktop && this.swirlSprite && this.displacementFilter) {
+            if (this.swirlSprite && this.displacementFilter) {
                 if (this.mousePos.x > -500 && this.mousePos.y > -500) {
                     // Desktop swirl effect when mouse is over canvas
                     const moveSpeed = 0.15;
@@ -563,15 +564,15 @@ class FluidHomePixi {
                     this.displacementFilter.scale.x *= 0.9;
                     this.displacementFilter.scale.y *= 0.9;
                 }
-            } else if (this.isMobile || !isDesktop) {
-                // Mobile: Keep displacement disabled to prevent scroll blocking
-                if (this.displacementFilter) {
-                    this.displacementFilter.scale.x = 0;
-                    this.displacementFilter.scale.y = 0;
-                }
-                if (this.swirlSprite) {
-                    this.swirlSprite.rotation = 0;
-                }
+            // } else if (this.isMobile || !isDesktop) {
+            //     // Mobile: Keep displacement disabled to prevent scroll blocking
+            //     if (this.displacementFilter) {
+            //         this.displacementFilter.scale.x = 0;
+            //         this.displacementFilter.scale.y = 0;
+            //     }
+            //     if (this.swirlSprite) {
+            //         this.swirlSprite.rotation = 0;
+            //     }
             }
         });
     }

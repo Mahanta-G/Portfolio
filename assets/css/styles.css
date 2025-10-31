@@ -352,8 +352,8 @@ html {
     position: relative;
     will-change: transform;
     backface-visibility: hidden;
-    /* Mobile: disable interactions to prevent scroll blocking */
-    pointer-events: none !important; /* Force no interactions - prevent scroll blocking */
+    /* TESTING: Enable pointer events everywhere for testing */
+    pointer-events: auto !important; /* TESTING: Enable everywhere for swirl animation */
     /* Critical: allow touch drag scrolling on mobile */
     touch-action: pan-y pan-x pinch-zoom !important; /* Force allow touch scrolling */
     -webkit-touch-callout: none; /* Prevent iOS callout menu */
@@ -365,12 +365,15 @@ html {
     -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
 }
 
+/* TESTING: Comment out media query - enable everywhere */
 /* Desktop: enable pointer events for swirl animation (only on larger screens) */
+/* 
 @media (min-width: 641px) {
     .fluid-home-canvas {
-        pointer-events: auto !important; /* Enable mouse events on desktop for swirl animation */
+        pointer-events: auto !important;
     }
 }
+*/
 
 /* Mobile: Remove large negative pixel offsets - use only -50%, -50% */
 @media (max-width: 600px) {
