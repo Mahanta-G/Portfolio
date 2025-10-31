@@ -16,17 +16,21 @@ class FluidHomePixi {
     }
 
     init() {
-        // Check if screen is smaller than 10cm (800px) - hide on small screens
-        const isSmallScreen = window.innerWidth <= 800;
-        
-        if (isSmallScreen) {
-            // Don't initialize on small screens - GM logo will be shown instead
-            this.canvas.style.display = 'none';
+        // Always initialize - keep home image visible on all screens
+        // Only animations are disabled on small screens (< 8cm = 320px)
+        const parent = this.canvas.parentElement;
+        if (!parent) {
+            // Retry if parent not ready
+            setTimeout(() => this.init(), 100);
             return;
         }
         
-        const parent = this.canvas.parentElement;
         const rect = parent.getBoundingClientRect();
+        
+        // Ensure canvas is visible
+        this.canvas.style.display = 'block';
+        this.canvas.style.visibility = 'visible';
+        this.canvas.style.opacity = '1';
         
         // Mobile optimization: lower resolution and performance settings
         const maxResolution = this.isMobile ? 1 : 1.5;
@@ -34,8 +38,8 @@ class FluidHomePixi {
         // Create PixiJS Application with WebGL
         this.app = new PIXI.Application({
             view: this.canvas,
-            width: rect.width,
-            height: rect.height,
+            width: rect.width || 600, // Fallback if rect is 0
+            height: rect.height || 600, // Fallback if rect is 0
             backgroundColor: 0x000000,
             backgroundAlpha: 0,
             antialias: !this.isMobile, // Disable on mobile for performance
@@ -194,20 +198,27 @@ class FluidHomePixi {
             setTimeout(() => this.handleResize(), 500);
         });
         
-        // Fix for disappearing image on scroll (mobile issue)
-        // Mobile: more aggressive resize and re-centering on scroll
+        // Fix for disappearing image on scroll/resize (mobile issue)
+        // More aggressive resize and re-centering on scroll to prevent disappearing
         window.addEventListener('scroll', () => {
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
+                // Ensure canvas is visible
+                if (this.canvas) {
+                    this.canvas.style.display = 'block';
+                    this.canvas.style.visibility = 'visible';
+                    this.canvas.style.opacity = '1';
+                }
+                
                 const parent = this.canvas.parentElement;
-                if (parent) {
+                if (parent && this.app) {
                     const rect = parent.getBoundingClientRect();
-                    // Mobile: always update on scroll to prevent disappearing
-                    if (rect.width > 0 && rect.height > 0 && this.app) {
+                    // Always update if dimensions changed or on mobile
+                    if (rect.width > 0 && rect.height > 0) {
                         const currentScrollY = window.scrollY;
-                        // Mobile: update more frequently (every scroll) to prevent disappearing
+                        // Update if dimensions changed or significant scroll
                         const shouldUpdate = this.isMobile ? 
-                            true : // Mobile: always update
+                            true : // Mobile: always update to prevent disappearing
                             (Math.abs(currentScrollY - lastScrollY) > 50 || 
                              this.app.screen.width !== rect.width || 
                              this.app.screen.height !== rect.height);
@@ -223,8 +234,8 @@ class FluidHomePixi {
                                 this.sprite.x = (w - this.sprite.width) / 2;
                                 this.sprite.y = (h - this.sprite.height) / 2;
                                 
-                                // Mobile: ensure displacement filter scale is zero
-                                if (this.isMobile && this.displacementFilter) {
+                                // Ensure displacement filter scale is zero (animations disabled)
+                                if (this.displacementFilter) {
                                     this.displacementFilter.scale.x = 0;
                                     this.displacementFilter.scale.y = 0;
                                 }
@@ -261,8 +272,20 @@ class FluidHomePixi {
 
     animate() {
         this.app.ticker.add(() => {
-            // Completely disable swirl effect on all devices to prevent scroll blocking
-            // The swirl animation causes scroll blocking issues on live server and mobile
+            // Check screen width - disable swirl on screens smaller than 8cm (320px)
+            const isSmallScreen = window.innerWidth <= 320;
+            
+            if (isSmallScreen) {
+                // Small screens (< 8cm): disable swirl animation but keep image visible
+                if (this.displacementFilter) {
+                    this.displacementFilter.scale.x = 0;
+                    this.displacementFilter.scale.y = 0;
+                }
+                return; // Skip swirl animation on small screens
+            }
+            
+            // Desktop and larger mobile: Disable swirl on all devices to prevent scroll blocking
+            // The swirl animation causes scroll blocking issues
             if (this.displacementFilter) {
                 this.displacementFilter.scale.x = 0;
                 this.displacementFilter.scale.y = 0;
@@ -270,16 +293,6 @@ class FluidHomePixi {
             
             // Swirl effect disabled - keeping code commented for reference
             /*
-            // Mobile: completely disable swirl effect to prevent scroll blocking
-            if (this.isMobile) {
-                // On mobile, keep displacement at zero - no swirl effect
-                if (this.displacementFilter) {
-                    this.displacementFilter.scale.x = 0;
-                    this.displacementFilter.scale.y = 0;
-                }
-                return; // Skip all swirl animation on mobile
-            }
-            
             // Desktop: Update swirl position and intensity
             if (this.swirlSprite && this.displacementFilter) {
                 if (this.mousePos.x > -500) {
@@ -319,62 +332,38 @@ class FluidHomePixi {
 document.addEventListener('DOMContentLoaded', () => {
     const homeCanvas = document.getElementById('fluidHomeCanvas');
     if (homeCanvas && !window.fluidHomePixiInstance && !homeCanvas.dataset.initialized) {
-        // Check if screen is smaller than 10cm (800px)
-        const isSmallScreen = window.innerWidth <= 800;
-        
-        if (!isSmallScreen) {
-            // Only initialize on larger screens
-            homeCanvas.dataset.initialized = 'true';
-            const imagePath = '../assets/images/me.png?' + Date.now();
-            window.fluidHomePixiInstance = new FluidHomePixi(homeCanvas, imagePath);
-        }
+        // Always initialize - home image visible on all screens
+        homeCanvas.dataset.initialized = 'true';
+        // Determine correct image path based on page location
+        const imagePath = homeCanvas.closest('body').baseURI.includes('pages') 
+            ? '../assets/images/me.png?' + Date.now()
+            : 'assets/images/me.png?' + Date.now();
+        window.fluidHomePixiInstance = new FluidHomePixi(homeCanvas, imagePath);
     }
     
-    // Initialize GM logo for small screens (< 10cm/800px)
-    const gmLogoCanvas = document.getElementById('heroGmLogoCanvas');
-    if (gmLogoCanvas && !window.heroGmLogoInstance && !gmLogoCanvas.dataset.initialized) {
-        const isSmallScreen = window.innerWidth <= 800;
-        
-        if (isSmallScreen) {
-            // Create GM logo particle effect for mobile
-            gmLogoCanvas.dataset.initialized = 'true';
-            const gmLogoPath = '../assets/images/logo.png?' + Date.now();
-            window.heroGmLogoInstance = new FluidLogoPixi(gmLogoCanvas, gmLogoPath);
-        }
-    }
-    
-    // Handle window resize - switch between home image and GM logo
+    // Handle window resize - ensure image doesn't disappear
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            const isSmallScreen = window.innerWidth <= 800;
             const homeCanvas = document.getElementById('fluidHomeCanvas');
-            const gmLogoCanvas = document.getElementById('heroGmLogoCanvas');
-            
-            if (isSmallScreen) {
-                // Small screen: hide home canvas, show GM logo
-                if (homeCanvas && window.fluidHomePixiInstance) {
-                    window.fluidHomePixiInstance.destroy();
-                    window.fluidHomePixiInstance = null;
-                    homeCanvas.style.display = 'none';
-                }
-                if (gmLogoCanvas && !window.heroGmLogoInstance && !gmLogoCanvas.dataset.initialized) {
-                    gmLogoCanvas.dataset.initialized = 'true';
-                    const gmLogoPath = '../assets/images/logo.png?' + Date.now();
-                    window.heroGmLogoInstance = new FluidLogoPixi(gmLogoCanvas, gmLogoPath);
-                }
-            } else {
-                // Large screen: show home canvas, hide GM logo
-                if (gmLogoCanvas && window.heroGmLogoInstance) {
-                    window.heroGmLogoInstance.destroy();
-                    window.heroGmLogoInstance = null;
-                    gmLogoCanvas.style.display = 'none';
-                }
-                if (homeCanvas && !window.fluidHomePixiInstance && !homeCanvas.dataset.initialized) {
-                    homeCanvas.dataset.initialized = 'true';
-                    const imagePath = '../assets/images/me.png?' + Date.now();
-                    window.fluidHomePixiInstance = new FluidHomePixi(homeCanvas, imagePath);
+            if (homeCanvas && window.fluidHomePixiInstance) {
+                // Ensure canvas stays visible on resize
+                homeCanvas.style.display = 'block';
+                homeCanvas.style.visibility = 'visible';
+                homeCanvas.style.opacity = '1';
+                
+                // Re-initialize if needed (handle resize)
+                const parent = homeCanvas.parentElement;
+                if (parent) {
+                    const rect = parent.getBoundingClientRect();
+                    if (window.fluidHomePixiInstance.app && (rect.width > 0 || rect.height > 0)) {
+                        // Update renderer size if dimensions changed
+                        if (window.fluidHomePixiInstance.app.screen.width !== rect.width ||
+                            window.fluidHomePixiInstance.app.screen.height !== rect.height) {
+                            window.fluidHomePixiInstance.handleResize();
+                        }
+                    }
                 }
             }
         }, 250);
