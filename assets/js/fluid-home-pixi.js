@@ -16,6 +16,15 @@ class FluidHomePixi {
     }
 
     init() {
+        // Check if screen is smaller than 10cm (800px) - hide on small screens
+        const isSmallScreen = window.innerWidth <= 800;
+        
+        if (isSmallScreen) {
+            // Don't initialize on small screens - GM logo will be shown instead
+            this.canvas.style.display = 'none';
+            return;
+        }
+        
         const parent = this.canvas.parentElement;
         const rect = parent.getBoundingClientRect();
         
@@ -252,6 +261,15 @@ class FluidHomePixi {
 
     animate() {
         this.app.ticker.add(() => {
+            // Completely disable swirl effect on all devices to prevent scroll blocking
+            // The swirl animation causes scroll blocking issues on live server and mobile
+            if (this.displacementFilter) {
+                this.displacementFilter.scale.x = 0;
+                this.displacementFilter.scale.y = 0;
+            }
+            
+            // Swirl effect disabled - keeping code commented for reference
+            /*
             // Mobile: completely disable swirl effect to prevent scroll blocking
             if (this.isMobile) {
                 // On mobile, keep displacement at zero - no swirl effect
@@ -286,6 +304,7 @@ class FluidHomePixi {
                     this.displacementFilter.scale.y *= 0.9;
                 }
             }
+            */
         });
     }
 
