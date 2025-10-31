@@ -26,8 +26,9 @@ class FluidHomePixi {
         }
         
         // CRITICAL: Always enforce minimum sizes in JS (not conditionally)
-        parent.style.minWidth = "140px";
-        parent.style.minHeight = "140px";
+        // Use consistent min sizes: 150px width, 120px height
+        parent.style.minWidth = "150px";
+        parent.style.minHeight = "120px";
         
         // Add fix-size class for highest specificity
         parent.classList.add('fix-size');
@@ -61,9 +62,10 @@ class FluidHomePixi {
         const maxResolution = this.isMobile ? 1 : 1.5;
         
         // Use Math.max to ensure dimensions are never below minimum for initial setup
-        // Use initial dimensions with fallback to 140
-        const initialWidth = Math.max(parent.offsetWidth || 140, 140);
-        const initialHeight = Math.max(parent.offsetHeight || 140, 140);
+        // Use initial dimensions with fallback to 150px width, 120px height
+        const minW = 150, minH = 120;
+        const initialWidth = Math.max(parent.offsetWidth || minW, minW);
+        const initialHeight = Math.max(parent.offsetHeight || minH, minH);
         
         // Create PixiJS Application with WebGL
         this.app = new PIXI.Application({
@@ -84,8 +86,9 @@ class FluidHomePixi {
         // After initialization, ensure dimensions are correct with a delayed check
         setTimeout(() => {
             if (this.app && this.app.renderer) {
-                const width = Math.max(parent.offsetWidth || 140, 140);
-                const height = Math.max(parent.offsetHeight || 140, 140);
+                const minW = 150, minH = 120;
+                const width = Math.max(parent.offsetWidth || minW, minW);
+                const height = Math.max(parent.offsetHeight || minH, minH);
                 
                 // Debug: log dimensions if zero (helps identify collapse)
                 if (width === 0 || height === 0) {
@@ -100,6 +103,9 @@ class FluidHomePixi {
                 this.app.renderer.resize(width, height);
             }
         }, 60); // Small delay to let the browser recalculate sizes
+        
+        // Initialize retry counter for resize operations
+        this.resizeRetryCount = 0;
     }
 
     loadImage() {
@@ -319,8 +325,9 @@ class FluidHomePixi {
                 if (!parent || !this.app || !this.app.renderer) return;
                 
                 // CRITICAL: Always enforce minimum sizes first (not conditionally)
-                parent.style.minWidth = "140px";
-                parent.style.minHeight = "140px";
+                const minW = 150, minH = 120;
+                parent.style.minWidth = `${minW}px`;
+                parent.style.minHeight = `${minH}px`;
                 parent.classList.add('fix-size');
                 
                 // Only force visibility if parent is accidentally hidden
@@ -344,9 +351,9 @@ class FluidHomePixi {
                     // Always set parent size first, then delay canvas resize
                     setTimeout(() => {
                         try {
-                            // CRITICAL: Always use Math.max to ensure minimum size (never below 140)
-                            const width = Math.max(parent.offsetWidth || 140, 140);
-                            const height = Math.max(parent.offsetHeight || 140, 140);
+                            // CRITICAL: Always use Math.max to ensure minimum size (never below minW/minH)
+                            const width = Math.max(parent.offsetWidth || minW, minW);
+                            const height = Math.max(parent.offsetHeight || minH, minH);
                             
                             // Debug: log dimensions if zero (helps identify collapse)
                             if (width === 0 || height === 0) {
@@ -395,9 +402,12 @@ class FluidHomePixi {
         const parent = this.canvas.parentElement;
         if (!parent || !this.app || !this.app.renderer) return;
         
+        // JS Defensive Resize with Retry
+        const minW = 150, minH = 120;
+        
         // CRITICAL: Always enforce minimum sizes first (not conditionally)
-        parent.style.minWidth = "140px";
-        parent.style.minHeight = "140px";
+        parent.style.minWidth = `${minW}px`;
+        parent.style.minHeight = `${minH}px`;
         parent.classList.add('fix-size');
         this.canvas.classList.add('fix-size');
         
@@ -419,74 +429,51 @@ class FluidHomePixi {
             this.canvas.classList.add('canvas-visible', 'fix-size');
         }
         
-        // Get dimensions and check for collapse
-        const rect = parent.getBoundingClientRect();
+        // Get dimensions using Math.max
+        const width = Math.max(parent.offsetWidth || minW, minW);
+        const height = Math.max(parent.offsetHeight || minH, minH);
         
-        // Never skip resize - if collapsed, fix it and schedule another resize
-        if (rect.width < 100 || rect.height < 100) {
-            // Force minimum size and schedule another resize attempt
-            parent.style.minWidth = "140px";
-            parent.style.minHeight = "140px";
+        // Right after resize, if container size is invalid (tiny/zero), force min-size and retry
+        if (width < minW || height < minH) {
+            // Force minimum size
+            parent.style.minWidth = `${minW}px`;
+            parent.style.minHeight = `${minH}px`;
             parent.classList.add('fix-size');
             
-            // Schedule another resize after layout settles
-            setTimeout(() => this.handleResize(), 100);
+            // Retry up to 3 times if still too small (guarantees image always comes back)
+            if (this.resizeRetryCount < 3) {
+                this.resizeRetryCount++;
+                setTimeout(() => this.handleResize(), 100); // Try once more after layout
+            } else {
+                // Reset retry count after max attempts
+                this.resizeRetryCount = 0;
+            }
             
-            // Also try immediate fix with delay
-            setTimeout(() => {
-                if (this.app && this.app.renderer) {
-                    // Always use Math.max to ensure minimum size
-                    const width = Math.max(parent.offsetWidth || 140, 140);
-                    const height = Math.max(parent.offsetHeight || 140, 140);
-                    
-                    // Debug: log if still zero
-                    if (width === 0 || height === 0) {
-                        console.warn('Container still collapsed after fix:', {
-                            width: parent.offsetWidth,
-                            height: parent.offsetHeight,
-                            rect: parent.getBoundingClientRect()
-                        });
-                    }
-                    
-                    this.app.renderer.resize(width, height);
-                    
-                    // Reset sprite to center if it exists
-                    if (this.sprite && this.sprite.texture) {
-                        const w = this.app.screen.width;
-                        const h = this.app.screen.height;
-                        if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
-                            const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.16;
-                            this.sprite.scale.set(scale);
-                            this.sprite.x = (w - this.sprite.width) / 2;
-                            this.sprite.y = (h - this.sprite.height) / 2;
-                            this.sprite.visible = true;
-                            this.sprite.alpha = 1;
-                        }
-                    }
-                }
-            }, 60); // Small delay to let the browser recalculate sizes
-            
-            return;
+            return; // Prevent trying to resize canvas to 0
         }
+        
+        // Reset retry count on successful resize
+        this.resizeRetryCount = 0;
         
         // Normal resize path - always set parent size first, then delay canvas resize
         setTimeout(() => {
             try {
                 // Always use Math.max to ensure minimum size
-                const width = Math.max(parent.offsetWidth || 140, 140);
-                const height = Math.max(parent.offsetHeight || 140, 140);
+                const finalWidth = Math.max(parent.offsetWidth || minW, minW);
+                const finalHeight = Math.max(parent.offsetHeight || minH, minH);
                 
                 // Debug: log dimensions before resize (helps identify issues)
-                if (width === 0 || height === 0) {
+                if (finalWidth === 0 || finalHeight === 0) {
                     console.warn('Zero dimensions detected before resize:', {
                         width: parent.offsetWidth,
                         height: parent.offsetHeight,
-                        rect: parent.getBoundingClientRect()
+                        rect: parent.getBoundingClientRect(),
+                        retryCount: this.resizeRetryCount
                     });
                 }
                 
                 // Always call resize - Math.max ensures valid dimensions
-                this.app.renderer.resize(width, height);
+                this.app.renderer.resize(finalWidth, finalHeight);
                 
                 // Re-center sprite if it exists - validate dimensions first
                 if (this.sprite && this.isInitialized && this.sprite.texture) {
