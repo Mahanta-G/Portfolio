@@ -286,20 +286,22 @@ html {
     transform: translateZ(0); /* Force GPU acceleration for smooth scrolling */
 }
 
-/* Fluid Home Image Container - Optimized size (600x600), moved up 150px and left 60px */
+/* Fluid Home Image Container - Optimized size, moved up 150px and left 60px */
 /* Always visible on all screens - only animations disabled on small screens */
 .fluid-home-container {
     position: absolute;
     width: 600px;
     height: 600px;
+    min-width: 220px !important; /* Prevent collapsing below a readable threshold */
+    min-height: 220px !important;
     top: 50%;
     left: 50%;
     transform: translate(calc(-50% - 60px), calc(-50% - 150px));
     z-index: 1;
     pointer-events: none !important; /* Force: Don't block scrolling */
     filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
-    visibility: visible !important; /* Force visible */
-    opacity: 1 !important; /* Force visible */
+    visibility: visible;
+    opacity: 1;
     /* Mobile fix: prevent disappearing on scroll */
     will-change: transform;
     backface-visibility: hidden;
@@ -315,6 +317,30 @@ html {
     -webkit-tap-highlight-color: transparent !important;
     /* Ensure it doesn't interfere with scroll */
     overflow: visible !important;
+}
+
+/* CSS class for guaranteed visibility */
+.container-visible {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+}
+
+.canvas-visible {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+    touch-action: pan-y pan-x pinch-zoom !important;
+}
+
+/* Mobile: smaller min size */
+@media (max-width: 480px) {
+    .fluid-home-container {
+        min-width: 150px !important;
+        min-height: 150px !important;
+    }
 }
 
 .fluid-home-canvas {

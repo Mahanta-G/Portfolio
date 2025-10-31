@@ -25,29 +25,29 @@ class FluidHomePixi {
             return;
         }
         
-        const rect = parent.getBoundingClientRect();
-        
-        // Ensure canvas is visible - CRITICAL for responsiveness test
-        this.canvas.style.display = 'block';
-        this.canvas.style.visibility = 'visible';
-        this.canvas.style.opacity = '1';
-        this.canvas.style.position = 'relative';
-        
-        // CRITICAL: Ensure touch scrolling works on mobile
-        // Set canvas to not capture touch events - let scrolling work naturally
-        this.canvas.setAttribute('style', 
-            this.canvas.getAttribute('style') + 
-            '; pointer-events: none !important; ' +
-            'touch-action: pan-y pan-x pinch-zoom !important; ' +
-            'display: block !important; visibility: visible !important; opacity: 1 !important;'
-        );
+        // Ensure canvas is visible - set CSS class for visibility management
+        this.canvas.classList.add('canvas-visible');
+        this.canvas.style.pointerEvents = 'none';
+        this.canvas.style.touchAction = 'pan-y pan-x pinch-zoom';
         
         // Also set parent container
         const container = this.canvas.parentElement;
         if (container) {
+            container.classList.add('container-visible');
             container.style.pointerEvents = 'none';
             container.style.touchAction = 'pan-y pan-x pinch-zoom';
         }
+        
+        // Validate parent/container size before initializing
+        const rect = parent.getBoundingClientRect();
+        if (rect.width < 100 || rect.height < 100) {
+            parent.style.minWidth = "150px";
+            parent.style.minHeight = "150px";
+        }
+        
+        // Use offsetWidth/offsetHeight with proper validation instead of hardcoded fallback
+        const width = parent.offsetWidth > 200 ? parent.offsetWidth : 320;
+        const height = parent.offsetHeight > 200 ? parent.offsetHeight : 320;
         
         // Mobile optimization: lower resolution and performance settings
         const maxResolution = this.isMobile ? 1 : 1.5;
@@ -55,8 +55,8 @@ class FluidHomePixi {
         // Create PixiJS Application with WebGL
         this.app = new PIXI.Application({
             view: this.canvas,
-            width: rect.width || 600, // Fallback if rect is 0
-            height: rect.height || 600, // Fallback if rect is 0
+            width: width,
+            height: height,
             backgroundColor: 0x000000,
             backgroundAlpha: 0,
             antialias: !this.isMobile, // Disable on mobile for performance
@@ -114,13 +114,27 @@ class FluidHomePixi {
         const w = this.app.screen.width;
         const h = this.app.screen.height;
         
+        // Validate dimensions before creating sprite
+        if (w <= 0 || h <= 0 || texture.width <= 0 || texture.height <= 0) {
+            console.warn('Invalid dimensions for sprite creation:', { w, h, textureWidth: texture.width, textureHeight: texture.height });
+            return;
+        }
+        
         // Create main sprite (sharp)
         this.sprite = new PIXI.Sprite(texture);
-        const scale = Math.min(w / this.sprite.width, h / this.sprite.height) * 1.16;
-        this.sprite.scale.set(scale);
-        this.sprite.x = (w - this.sprite.width) / 2;
-        this.sprite.y = (h - this.sprite.height) / 2;
-        this.app.stage.addChild(this.sprite);
+        
+        // Validate sprite dimensions before scaling
+        if (this.sprite.width > 0 && this.sprite.height > 0 && w > 0 && h > 0) {
+            const scale = Math.min(w / this.sprite.width, h / this.sprite.height) * 1.16;
+            this.sprite.scale.set(scale);
+            this.sprite.x = (w - this.sprite.width) / 2;
+            this.sprite.y = (h - this.sprite.height) / 2;
+            this.sprite.visible = true;
+            this.sprite.alpha = 1;
+            this.app.stage.addChild(this.sprite);
+        } else {
+            console.warn('Invalid sprite dimensions, cannot center');
+        }
         
         // Check screen width - disable swirl completely on small screens (< 8cm = 320px)
         const isSmallScreen = window.innerWidth <= 320;
@@ -263,47 +277,42 @@ class FluidHomePixi {
         });
         
         // Fix for disappearing image on scroll/resize (mobile issue)
-        // More aggressive visibility check to prevent disappearing
+        // Only check visibility if parent is accidentally hidden, otherwise use CSS classes
         window.addEventListener('scroll', () => {
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
-                // CRITICAL: Always ensure canvas is visible
-                if (this.canvas) {
-                    this.canvas.style.setProperty('display', 'block', 'important');
-                    this.canvas.style.setProperty('visibility', 'visible', 'important');
-                    this.canvas.style.setProperty('opacity', '1', 'important');
-                    this.canvas.style.setProperty('pointer-events', 'none', 'important');
-                    this.canvas.style.setProperty('touch-action', 'pan-y pan-x pinch-zoom', 'important');
-                }
-                
-                // Ensure parent container is also visible
                 const parent = this.canvas.parentElement;
-                if (parent) {
-                    parent.style.setProperty('display', 'block', 'important');
-                    parent.style.setProperty('visibility', 'visible', 'important');
-                    parent.style.setProperty('opacity', '1', 'important');
-                    parent.style.setProperty('pointer-events', 'none', 'important');
+                if (!parent || !this.app || !this.app.renderer) return;
+                
+                // Only force visibility if parent is accidentally hidden
+                const parentStyle = window.getComputedStyle(parent);
+                if (parentStyle.display === 'none' || parentStyle.visibility === 'hidden') {
+                    parent.classList.add('container-visible');
+                    this.canvas.classList.add('canvas-visible');
                 }
                 
-                if (parent && this.app && this.app.renderer) {
-                    const rect = parent.getBoundingClientRect();
-                    // Always update if dimensions changed or on mobile
-                    if (rect.width > 0 && rect.height > 0) {
-                        const currentScrollY = window.scrollY;
-                        // Update if dimensions changed or significant scroll
-                        const shouldUpdate = this.isMobile ? 
-                            true : // Mobile: always update to prevent disappearing
-                            (Math.abs(currentScrollY - lastScrollY) > 50 || 
-                             this.app.screen.width !== rect.width || 
-                             this.app.screen.height !== rect.height);
-                        
-                        if (shouldUpdate) {
-                            try {
-                                this.app.renderer.resize(rect.width, rect.height);
-                                // Re-center sprite if it exists
-                                if (this.sprite && this.isInitialized && this.sprite.texture) {
-                                    const w = this.app.screen.width;
-                                    const h = this.app.screen.height;
+                const rect = parent.getBoundingClientRect();
+                // Always update if dimensions changed or on mobile
+                if (rect.width > 0 && rect.height > 0) {
+                    const currentScrollY = window.scrollY;
+                    // Update if dimensions changed or significant scroll
+                    const shouldUpdate = this.isMobile ? 
+                        true : // Mobile: always update to prevent disappearing
+                        (Math.abs(currentScrollY - lastScrollY) > 50 || 
+                         this.app.screen.width !== rect.width || 
+                         this.app.screen.height !== rect.height);
+                    
+                    if (shouldUpdate) {
+                        try {
+                            const width = parent.offsetWidth > 200 ? parent.offsetWidth : 320;
+                            const height = parent.offsetHeight > 200 ? parent.offsetHeight : 320;
+                            this.app.renderer.resize(width, height);
+                            
+                            // Re-center sprite if it exists - validate dimensions first
+                            if (this.sprite && this.isInitialized && this.sprite.texture) {
+                                const w = this.app.screen.width;
+                                const h = this.app.screen.height;
+                                if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
                                     const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.16;
                                     this.sprite.scale.set(scale);
                                     this.sprite.x = (w - this.sprite.width) / 2;
@@ -319,11 +328,11 @@ class FluidHomePixi {
                                         this.displacementFilter.scale.y = 0;
                                     }
                                 }
-                            } catch (e) {
-                                console.warn('Error updating renderer on scroll:', e);
                             }
-                            lastScrollY = currentScrollY;
+                        } catch (e) {
+                            console.warn('Error updating renderer on scroll:', e);
                         }
+                        lastScrollY = currentScrollY;
                     }
                 }
             }, this.isMobile ? 50 : 100); // Faster update on mobile
@@ -331,37 +340,43 @@ class FluidHomePixi {
     }
 
     handleResize() {
-        // CRITICAL: Ensure canvas stays visible on resize
-        if (this.canvas) {
-            this.canvas.style.setProperty('display', 'block', 'important');
-            this.canvas.style.setProperty('visibility', 'visible', 'important');
-            this.canvas.style.setProperty('opacity', '1', 'important');
-            this.canvas.style.setProperty('pointer-events', 'none', 'important');
-        }
-        
         const parent = this.canvas.parentElement;
-        if (parent) {
-            parent.style.setProperty('display', 'block', 'important');
-            parent.style.setProperty('visibility', 'visible', 'important');
-            parent.style.setProperty('opacity', '1', 'important');
+        if (!parent || !this.app || !this.app.renderer) return;
+        
+        // Only force visibility if parent is accidentally hidden
+        const parentStyle = window.getComputedStyle(parent);
+        if (parentStyle.display === 'none' || parentStyle.visibility === 'hidden') {
+            parent.classList.add('container-visible');
+            this.canvas.classList.add('canvas-visible');
         }
         
-        const rect = parent ? parent.getBoundingClientRect() : { width: 600, height: 600 };
+        // Validate parent/container size
+        const rect = parent.getBoundingClientRect();
+        if (rect.width < 100 || rect.height < 100) {
+            parent.style.minWidth = "150px";
+            parent.style.minHeight = "150px";
+        }
         
-        if (rect.width > 0 && rect.height > 0 && this.app && this.app.renderer) {
+        // Use offsetWidth/offsetHeight with proper validation
+        const width = parent.offsetWidth > 200 ? parent.offsetWidth : 320;
+        const height = parent.offsetHeight > 200 ? parent.offsetHeight : 320;
+        
+        if (width > 0 && height > 0) {
             try {
-            this.app.renderer.resize(rect.width, rect.height);
-            
-                // Re-center sprite if it exists instead of removing
+                this.app.renderer.resize(width, height);
+                
+                // Re-center sprite if it exists - validate dimensions first
                 if (this.sprite && this.isInitialized && this.sprite.texture) {
                     const w = this.app.screen.width;
                     const h = this.app.screen.height;
-                    const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.16;
-                    this.sprite.scale.set(scale);
-                    this.sprite.x = (w - this.sprite.width) / 2;
-                    this.sprite.y = (h - this.sprite.height) / 2;
-                    this.sprite.visible = true;
-                    this.sprite.alpha = 1;
+                    if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
+                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.16;
+                        this.sprite.scale.set(scale);
+                        this.sprite.x = (w - this.sprite.width) / 2;
+                        this.sprite.y = (h - this.sprite.height) / 2;
+                        this.sprite.visible = true;
+                        this.sprite.alpha = 1;
+                    }
                 } else if (!this.isInitialized) {
                     // Only reload if not initialized
                     this.loadImage();
@@ -370,7 +385,7 @@ class FluidHomePixi {
                 console.warn('Error resizing renderer:', e);
                 // Retry initialization if error
                 if (!this.isInitialized) {
-            this.loadImage();
+                    this.loadImage();
                 }
             }
         }
