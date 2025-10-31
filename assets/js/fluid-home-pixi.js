@@ -25,6 +25,10 @@ class FluidHomePixi {
             return;
         }
         
+        // CRITICAL: Always enforce minimum sizes in JS (not conditionally)
+        parent.style.minWidth = "150px";
+        parent.style.minHeight = "150px";
+        
         // Ensure canvas is visible - set CSS class for visibility management
         this.canvas.classList.add('canvas-visible');
         this.canvas.style.pointerEvents = 'none';
@@ -38,16 +42,9 @@ class FluidHomePixi {
             container.style.touchAction = 'pan-y pan-x pinch-zoom';
         }
         
-        // Validate parent/container size before initializing
-        const rect = parent.getBoundingClientRect();
-        if (rect.width < 100 || rect.height < 100) {
-            parent.style.minWidth = "150px";
-            parent.style.minHeight = "150px";
-        }
-        
-        // Use offsetWidth/offsetHeight with proper validation instead of hardcoded fallback
-        const width = parent.offsetWidth > 200 ? parent.offsetWidth : 320;
-        const height = parent.offsetHeight > 200 ? parent.offsetHeight : 320;
+        // Use Math.max to ensure dimensions are never below minimum (always enforce minimum)
+        const width = Math.max(parent.offsetWidth, 150);
+        const height = Math.max(parent.offsetHeight, 150);
         
         // Mobile optimization: lower resolution and performance settings
         const maxResolution = this.isMobile ? 1 : 1.5;

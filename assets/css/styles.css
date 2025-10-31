@@ -288,16 +288,21 @@ html {
 
 /* Fluid Home Image Container - Optimized size, moved up 150px and left 60px */
 /* Always visible on all screens - only animations disabled on small screens */
+.fluid-home-container,
+.fluid-home-canvas {
+    /* CRITICAL: Always guarantee minimum size to prevent collapse */
+    min-width: 150px !important;
+    min-height: 150px !important;
+    width: 600px;
+    max-width: 400px;
+    max-height: 400px;
+    box-sizing: border-box;
+}
+
 .fluid-home-container {
     position: absolute;
     width: 600px;
     height: 600px;
-    /* CRITICAL: Guarantee minimum size to prevent collapse */
-    min-width: 140px !important;
-    min-height: 140px !important;
-    max-width: 600px !important;
-    max-height: 600px !important;
-    box-sizing: border-box;
     top: 50%;
     left: 50%;
     transform: translate(calc(-50% - 60px), calc(-50% - 150px));
@@ -328,9 +333,6 @@ html {
     display: block;
     width: 100%;
     height: 100%;
-    min-width: 140px !important;
-    min-height: 140px !important;
-    box-sizing: border-box;
     visibility: visible;
     opacity: 1;
     /* Mobile fix: prevent flickering/disappearing */
@@ -350,14 +352,15 @@ html {
     -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
 }
 
-/* Mobile: different min sizes */
-@media (max-width: 600px) {
+/* Mobile: smaller min sizes */
+@media (max-width: 480px) {
     .fluid-home-container,
     .fluid-home-canvas {
-        min-width: 90vw !important;
+        min-width: 120px !important;
         min-height: 120px !important;
-        max-width: 350px !important;
-        max-height: 350px !important;
+        width: 90vw;
+        max-width: 280px;
+        max-height: 280px;
     }
 }
 
