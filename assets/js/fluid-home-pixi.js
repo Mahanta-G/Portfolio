@@ -162,30 +162,89 @@ class FluidHomePixi {
     }
 
     createDisplacementEffect(texture) {
-        const w = this.app.screen.width;
-        const h = this.app.screen.height;
-        
-        // Validate dimensions before creating sprite
-        if (w <= 0 || h <= 0 || texture.width <= 0 || texture.height <= 0) {
-            console.warn('Invalid dimensions for sprite creation:', { w, h, textureWidth: texture.width, textureHeight: texture.height });
+        // Validate texture dimensions
+        if (texture.width <= 0 || texture.height <= 0) {
+            console.warn('Invalid texture dimensions:', { textureWidth: texture.width, textureHeight: texture.height });
             return;
         }
+        
+        const parent = this.canvas.parentElement;
+        
+        // Get container dimensions (use current or fallback)
+        const containerW = parent.offsetWidth || 600;
+        const containerH = parent.offsetHeight || 600;
+        
+        // Calculate scaled image size with 2.7x multiplier
+        const scale = 2.7;
+        const scaledImageWidth = texture.width * scale;
+        const scaledImageHeight = texture.height * scale;
+        
+        // Calculate canvas size to fit scaled image while maintaining aspect ratio
+        // Use the larger of: container size or scaled image size
+        const imageAspect = texture.width / texture.height;
+        const containerAspect = containerW / containerH;
+        
+        let canvasWidth, canvasHeight;
+        
+        if (scaledImageWidth > containerW || scaledImageHeight > containerH) {
+            // Scaled image is larger than container - use scaled image size
+            canvasWidth = scaledImageWidth;
+            canvasHeight = scaledImageHeight;
+        } else {
+            // Container is larger - use container size but ensure min size is scaled image
+            canvasWidth = Math.max(scaledImageWidth, containerW);
+            canvasHeight = Math.max(scaledImageHeight, containerH);
+        }
+        
+        // Update canvas and app size
+        if (this.app && this.app.renderer) {
+            this.app.renderer.resize(canvasWidth, canvasHeight);
+            // Update container size to match canvas
+            parent.style.width = `${canvasWidth}px`;
+            parent.style.height = `${canvasHeight}px`;
+            this.canvas.style.width = `${canvasWidth}px`;
+            this.canvas.style.height = `${canvasHeight}px`;
+        }
+        
+        const w = this.app.screen.width;
+        const h = this.app.screen.height;
         
         // Create main sprite (sharp)
         this.sprite = new PIXI.Sprite(texture);
         
         // Validate sprite dimensions before scaling
         if (this.sprite.width > 0 && this.sprite.height > 0 && w > 0 && h > 0) {
-            // Increased scale multiplier to make image larger (now 2.7x = 1.8x * 1.5)
-            const scale = Math.min(w / this.sprite.width, h / this.sprite.height) * 2.7;
-        this.sprite.scale.set(scale);
-        this.sprite.x = (w - this.sprite.width) / 2;
-        this.sprite.y = (h - this.sprite.height) / 2;
+            // Scale image maintaining aspect ratio - use uniform scale (2.7x)
+            // Don't squeeze the image - maintain original aspect ratio
+            this.sprite.scale.set(scale, scale); // Uniform scale to maintain aspect ratio
+            // Center the sprite in the canvas (anchor is at center by default)
+            this.sprite.x = w / 2;
+            this.sprite.y = h / 2;
+            
+            // Ensure sprite is visible
             this.sprite.visible = true;
             this.sprite.alpha = 1;
-        this.app.stage.addChild(this.sprite);
+            // Keep default anchor (0.5, 0.5) for proper centering
+            
+            this.app.stage.addChild(this.sprite);
+            
+            // Debug: log dimensions
+            console.log('Canvas resized to match image:', {
+                originalTextureSize: { width: texture.width, height: texture.height },
+                scaledImageSize: { width: scaledImageWidth, height: scaledImageHeight },
+                canvasSize: { width: w, height: h },
+                containerSize: { width: containerW, height: containerH },
+                spriteSize: { width: this.sprite.width, height: this.sprite.height },
+                spritePosition: { x: this.sprite.x, y: this.sprite.y },
+                scale: scale
+            });
         } else {
-            console.warn('Invalid sprite dimensions, cannot center');
+            console.warn('Invalid sprite dimensions, cannot center', {
+                spriteWidth: this.sprite.width,
+                spriteHeight: this.sprite.height,
+                canvasWidth: w,
+                canvasHeight: h
+            });
         }
         
         // TESTING: Comment out mobile/small screen checks - enable swirl everywhere
@@ -257,8 +316,10 @@ class FluidHomePixi {
         this.swirlSprite.scale.set(0.8);
         this.swirlSprite.alpha = 0; // Start invisible
         // Initialize swirl sprite at center of canvas
-        this.swirlSprite.x = this.app.screen.width / 2;
-        this.swirlSprite.y = this.app.screen.height / 2;
+        const canvasCenterX = this.app.screen.width / 2;
+        const canvasCenterY = this.app.screen.height / 2;
+        this.swirlSprite.x = canvasCenterX;
+        this.swirlSprite.y = canvasCenterY;
         
         // Create displacement filter (using deprecated class for PixiJS v7.3.2 compatibility)
         // Note: DisplacementFilter is deprecated but still works in v7.3.2
@@ -281,12 +342,32 @@ class FluidHomePixi {
             const rect = this.canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Calculate mouse position relative to canvas
             const mx = clientX - rect.left;
             const my = clientY - rect.top;
             
-            // Update mouse position (don't restrict to sprite bounds for swirl to work everywhere)
-            this.mousePos.x = mx;
-            this.mousePos.y = my;
+            // Scale to match canvas resolution (accounting for device pixel ratio and canvas size)
+            const scaleX = this.app.screen.width / rect.width;
+            const scaleY = this.app.screen.height / rect.height;
+            
+            // Convert to canvas/app coordinates
+            const canvasX = mx * scaleX;
+            const canvasY = my * scaleY;
+            
+            // Update mouse position in canvas coordinates
+            this.mousePos.x = canvasX;
+            this.mousePos.y = canvasY;
+            
+            // Debug: log mouse position occasionally (throttle)
+            if (Math.random() < 0.01) { // Log 1% of events
+                console.log('Mouse move:', {
+                    clientX, clientY,
+                    rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+                    canvasCoords: { x: canvasX, y: canvasY },
+                    canvasSize: { width: this.app.screen.width, height: this.app.screen.height }
+                });
+            }
         };
 
         const handlePointerLeave = () => {
@@ -389,11 +470,12 @@ class FluidHomePixi {
                                 const w = this.app.screen.width;
                                 const h = this.app.screen.height;
                                     if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
-                                        // Increased scale to match initial size (2.7x = 1.8x * 1.5)
-                                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 2.7;
-                                        this.sprite.scale.set(scale);
-                                        this.sprite.x = (w - this.sprite.width) / 2;
-                                        this.sprite.y = (h - this.sprite.height) / 2;
+                                        // Maintain uniform scale (2.7x) - don't squeeze image
+                                        const scale = 2.7;
+                                        this.sprite.scale.set(scale, scale); // Uniform scale to maintain aspect ratio
+                                        // Center sprite (anchor is at center by default)
+                                        this.sprite.x = w / 2;
+                                        this.sprite.y = h / 2;
                                         
                                         // Ensure sprite is visible
                                         this.sprite.visible = true;
@@ -493,11 +575,12 @@ class FluidHomePixi {
                     const h = this.app.screen.height;
                     // Validate all dimensions before operations
                     if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
-                        // Increased scale to match initial size (2.7x = 1.8x * 1.5)
-                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 2.7;
-                        this.sprite.scale.set(scale);
-                        this.sprite.x = (w - this.sprite.width) / 2;
-                        this.sprite.y = (h - this.sprite.height) / 2;
+                        // Maintain uniform scale (2.7x) - don't squeeze image
+                        const scale = 2.7;
+                        this.sprite.scale.set(scale, scale); // Uniform scale to maintain aspect ratio
+                        // Center sprite (anchor is at center by default)
+                        this.sprite.x = w / 2;
+                        this.sprite.y = h / 2;
                         this.sprite.visible = true;
                         this.sprite.alpha = 1;
                     }

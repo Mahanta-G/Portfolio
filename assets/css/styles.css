@@ -311,8 +311,11 @@ html {
 /* Force layout flow - use flex or block for reliable inheritance */
 .fluid-home-container {
     position: absolute;
-    width: 600px;
-    height: 600px;
+    /* TESTING: Allow dynamic sizing - JS will set width/height to match image */
+    /* width: 600px; */
+    /* height: 600px; */
+    min-width: 600px;
+    min-height: 600px;
     top: 50%;
     left: 50%;
     /* Desktop: use offset for positioning */
