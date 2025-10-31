@@ -296,6 +296,10 @@ html {
     filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
     visibility: visible;
     opacity: 1;
+    /* Mobile fix: prevent disappearing on scroll */
+    will-change: transform;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
 }
 
 .fluid-home-canvas {
@@ -304,6 +308,10 @@ html {
     height: 100%;
     visibility: visible;
     opacity: 1;
+    /* Mobile fix: prevent flickering/disappearing */
+    position: relative;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .floating-card {

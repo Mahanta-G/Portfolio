@@ -8,12 +8,19 @@ class FluidHomePixi {
         this.swirlSprite = null;
         this.displacementFilter = null;
         this.isInitialized = false;
+        // Mobile detection
+        this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                        (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) ||
+                        ('ontouchstart' in window);
         this.init();
     }
 
     init() {
         const parent = this.canvas.parentElement;
         const rect = parent.getBoundingClientRect();
+        
+        // Mobile optimization: lower resolution and performance settings
+        const maxResolution = this.isMobile ? 1 : 1.5;
         
         // Create PixiJS Application with WebGL
         this.app = new PIXI.Application({
@@ -22,10 +29,10 @@ class FluidHomePixi {
             height: rect.height,
             backgroundColor: 0x000000,
             backgroundAlpha: 0,
-            antialias: true,
-            resolution: window.devicePixelRatio || 1,
+            antialias: !this.isMobile, // Disable on mobile for performance
+            resolution: Math.min(window.devicePixelRatio || 1, maxResolution),
             autoDensity: true,
-            powerPreference: 'high-performance',
+            powerPreference: this.isMobile ? 'default' : 'high-performance',
         });
 
         this.loadImage();
@@ -123,12 +130,14 @@ class FluidHomePixi {
     }
 
     setupEventListeners() {
-        this.canvas.addEventListener('mousemove', (e) => {
+        const handlePointerMove = (e) => {
             const rect = this.canvas.getBoundingClientRect();
-            const mx = e.clientX - rect.left;
-            const my = e.clientY - rect.top;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const mx = clientX - rect.left;
+            const my = clientY - rect.top;
             
-            // Check if mouse is within sprite bounds
+            // Check if pointer is within sprite bounds
             if (this.sprite) {
                 const spriteBounds = this.sprite.getBounds();
                 if (mx >= spriteBounds.x && mx <= spriteBounds.x + spriteBounds.width &&
@@ -140,21 +149,71 @@ class FluidHomePixi {
                     this.mousePos.y = -1000;
                 }
             }
-        });
+        };
 
-        this.canvas.addEventListener('mouseleave', () => {
+        const handlePointerLeave = () => {
             this.mousePos.x = -1000;
             this.mousePos.y = -1000;
-        });
+        };
 
-        // Add resize listener
+        // Support both mouse and touch events
+        if (this.isMobile) {
+            this.canvas.addEventListener('touchmove', handlePointerMove, { passive: true });
+            this.canvas.addEventListener('touchend', handlePointerLeave);
+            this.canvas.addEventListener('touchcancel', handlePointerLeave);
+        } else {
+            this.canvas.addEventListener('mousemove', handlePointerMove);
+            this.canvas.addEventListener('mouseleave', handlePointerLeave);
+        }
+
+        // Add resize and scroll listeners (mobile fix for disappearing image)
         let resizeTimeout;
-        window.addEventListener('resize', () => {
+        let scrollTimeout;
+        let lastScrollY = window.scrollY;
+        
+        const handleResize = () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 this.handleResize();
             }, 250);
+        };
+        
+        window.addEventListener('resize', handleResize);
+        // Mobile: handle orientation change
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => this.handleResize(), 500);
         });
+        
+        // Fix for disappearing image on scroll (mobile issue)
+        window.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const parent = this.canvas.parentElement;
+                if (parent) {
+                    const rect = parent.getBoundingClientRect();
+                    // Only update if element is visible and dimensions changed
+                    if (rect.width > 0 && rect.height > 0 && this.app) {
+                        // Check if scroll position changed significantly (mobile fix)
+                        const currentScrollY = window.scrollY;
+                        if (Math.abs(currentScrollY - lastScrollY) > 50 || 
+                            this.app.screen.width !== rect.width || 
+                            this.app.screen.height !== rect.height) {
+                            this.app.renderer.resize(rect.width, rect.height);
+                            // Re-center sprite if it exists
+                            if (this.sprite && this.isInitialized) {
+                                const w = this.app.screen.width;
+                                const h = this.app.screen.height;
+                                const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.16;
+                                this.sprite.scale.set(scale);
+                                this.sprite.x = (w - this.sprite.width) / 2;
+                                this.sprite.y = (h - this.sprite.height) / 2;
+                            }
+                            lastScrollY = currentScrollY;
+                        }
+                    }
+                }
+            }, 100);
+        }, { passive: true });
     }
 
     handleResize() {
@@ -184,21 +243,26 @@ class FluidHomePixi {
             // Update swirl position and intensity
             if (this.swirlSprite && this.displacementFilter) {
                 if (this.mousePos.x > -500) {
-                    // Move swirl to mouse position
-                    this.swirlSprite.x += (this.mousePos.x - this.swirlSprite.x) * 0.15;
-                    this.swirlSprite.y += (this.mousePos.y - this.swirlSprite.y) * 0.15;
+                    // Mobile optimization: slower movement, less intensity
+                    const moveSpeed = this.isMobile ? 0.1 : 0.15;
+                    const targetScale = this.isMobile ? 15 : 30; // Less distortion on mobile
+                    const scaleSpeed = this.isMobile ? 0.15 : 0.1;
+                    
+                    // Move swirl to pointer position
+                    this.swirlSprite.x += (this.mousePos.x - this.swirlSprite.x) * moveSpeed;
+                    this.swirlSprite.y += (this.mousePos.y - this.swirlSprite.y) * moveSpeed;
                     
                     // Fade in displacement
-                    const targetScale = 30;
-                    this.displacementFilter.scale.x += (targetScale - this.displacementFilter.scale.x) * 0.1;
-                    this.displacementFilter.scale.y += (targetScale - this.displacementFilter.scale.y) * 0.1;
+                    this.displacementFilter.scale.x += (targetScale - this.displacementFilter.scale.x) * scaleSpeed;
+                    this.displacementFilter.scale.y += (targetScale - this.displacementFilter.scale.y) * scaleSpeed;
                     
-                    // Rotate the swirl for animated effect
-                    this.swirlSprite.rotation += 0.05;
+                    // Rotate the swirl for animated effect (slower on mobile)
+                    this.swirlSprite.rotation += this.isMobile ? 0.03 : 0.05;
                 } else {
-                    // Fade out displacement when mouse leaves
-                    this.displacementFilter.scale.x *= 0.9;
-                    this.displacementFilter.scale.y *= 0.9;
+                    // Fade out displacement when pointer leaves
+                    const fadeSpeed = this.isMobile ? 0.92 : 0.9;
+                    this.displacementFilter.scale.x *= fadeSpeed;
+                    this.displacementFilter.scale.y *= fadeSpeed;
                 }
             }
         });

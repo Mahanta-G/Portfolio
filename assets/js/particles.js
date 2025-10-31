@@ -6,6 +6,12 @@ class ParticleCursor {
         this.mousePos = { x: 0, y: 0 };
         this.lastMousePos = { x: 0, y: 0 };
         this.animationId = null;
+        // Mobile detection
+        this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                        (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) ||
+                        ('ontouchstart' in window);
+        // Mobile: reduce particle effects
+        this.particleMultiplier = this.isMobile ? 0.5 : 1;
         this.init();
     }
 
@@ -36,16 +42,21 @@ class ParticleCursor {
                 document.body.appendChild(appContainer);
             }
 
-            // Initialize particle cursor with thicker particles
+            // Mobile optimization: reduce particle count and intensity
+            const gpgpuSize = this.isMobile ? 100 : 150; // Fewer particles on mobile
+            const pointSize = this.isMobile ? 0.8 : 1;
+            const noiseIntensity = this.isMobile ? 0.002 : 0.003;
+            
+            // Initialize particle cursor with optimized settings
             this.pc = particlesCursor({
                 el: appContainer,
-                gpgpuSize: 150,
+                gpgpuSize: gpgpuSize,
                 color: '#00d4ff',
                 coordScale: 1,
-                pointSize: 1,
-                noiseIntensity: 0.003,
+                pointSize: pointSize,
+                noiseIntensity: noiseIntensity,
                 noiseTimeCoef: 0.0001,
-                pointDecay: 0.08,
+                pointDecay: this.isMobile ? 0.1 : 0.08, // Faster decay on mobile
                 sleepRadiusX: 300,
                 sleepRadiusY: 300,
                 sleepTimeCoefX: 0.002,
@@ -109,36 +120,50 @@ class ParticleCursor {
     }
 
     setupMouseTracking() {
-        let isMouseMoving = false;
-        let mouseMoveTimeout;
+        let isPointerMoving = false;
+        let pointerMoveTimeout;
         let isFirstMove = true;
 
-        document.addEventListener('mousemove', (e) => {
-            // Skip first mouse move to prevent initial line
+        const handlePointerMove = (e) => {
+            // Get pointer position (works for both mouse and touch)
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Skip first move to prevent initial line
             if (isFirstMove) {
-                this.mousePos = { x: e.clientX, y: e.clientY };
-                this.lastMousePos = { x: e.clientX, y: e.clientY };
+                this.mousePos = { x: clientX, y: clientY };
+                this.lastMousePos = { x: clientX, y: clientY };
                 isFirstMove = false;
                 return;
             }
 
             this.lastMousePos = { ...this.mousePos };
-            this.mousePos = { x: e.clientX, y: e.clientY };
+            this.mousePos = { x: clientX, y: clientY };
             
-            if (!isMouseMoving) {
-                isMouseMoving = true;
+            if (!isPointerMoving) {
+                isPointerMoving = true;
                 this.startBrushStrokeAnimation();
             }
 
             // Clear timeout and reset
-            clearTimeout(mouseMoveTimeout);
-            mouseMoveTimeout = setTimeout(() => {
-                isMouseMoving = false;
-            }, 100);
+            clearTimeout(pointerMoveTimeout);
+            pointerMoveTimeout = setTimeout(() => {
+                isPointerMoving = false;
+            }, this.isMobile ? 200 : 100); // Longer timeout on mobile
 
-            // Create brush stroke particles
+            // Create brush stroke particles (less on mobile)
             this.createBrushStrokeParticles();
-        });
+        };
+
+        // Support both mouse and touch events
+        if (this.isMobile) {
+            document.addEventListener('touchmove', handlePointerMove, { passive: true });
+            document.addEventListener('touchend', () => {
+                isPointerMoving = false;
+            }, { passive: true });
+        } else {
+            document.addEventListener('mousemove', handlePointerMove);
+        }
     }
 
     createBrushStrokeParticles() {
@@ -147,9 +172,10 @@ class ParticleCursor {
             Math.pow(this.mousePos.y - this.lastMousePos.y, 2)
         );
 
-        // Create more particles for faster movement (capped density)
-        const maxParticleDensity = 6; 
-        const particleCount = Math.min(maxParticleDensity, Math.max(1, Math.floor(distance / 10)));
+        // Mobile optimization: fewer particles
+        const maxParticleDensity = this.isMobile ? 3 : 6;
+        const distanceDivisor = this.isMobile ? 15 : 10; // Less sensitive on mobile
+        const particleCount = Math.min(maxParticleDensity, Math.max(1, Math.floor(distance / distanceDivisor)));
     
         for (let i = 0; i < particleCount; i++) {
             const progress = i / particleCount;
@@ -168,10 +194,10 @@ class ParticleCursor {
     createBrushParticle(x, y, progress, distance) {
         const particle = document.createElement('div');
         
-        // Calculate size based on progress (small -> large -> small)
+        // Mobile optimization: smaller particles
         const sizeProgress = Math.sin(progress * Math.PI); // Creates bell curve
-        const baseSize = 6; 
-        const maxSize = 18;
+        const baseSize = this.isMobile ? 4 : 6;
+        const maxSize = this.isMobile ? 12 : 18;
         
         // Dampen the max size based on speed
         const speedDampening = 1.0 - Math.min(1.0, distance / 100) * 0.3; 
@@ -247,18 +273,22 @@ class ParticleCursor {
     }
 
     addHoverEffects() {
+        // Mobile: disable hover effects for better performance
+        if (this.isMobile) return;
+        
         const interactiveElements = document.querySelectorAll('a, button, .project-card, .hobby-card, .skill-category, .btn, .nav-link');
         
         interactiveElements.forEach(element => {
             element.addEventListener('mouseenter', () => {
-                // Create burst of particles on hover
+                // Create burst of particles on hover (desktop only)
                 const rect = element.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
                 
-                for (let i = 0; i < 8; i++) {
+                const particleCount = 8;
+                for (let i = 0; i < particleCount; i++) {
                     setTimeout(() => {
-                        const angle = (i / 8) * Math.PI * 2;
+                        const angle = (i / particleCount) * Math.PI * 2;
                         const radius = 30 + Math.random() * 20;
                         const x = centerX + Math.cos(angle) * radius;
                         const y = centerY + Math.sin(angle) * radius;
@@ -327,7 +357,15 @@ if (!document.getElementById('brush-stroke-styles')) {
 }
 
 // Initialize particle cursor when DOM is loaded (only if not already initialized)
-if (!window.particleCursorInstance) {
+// Mobile optimization: detect if device can handle particles
+const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                       (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) ||
+                       ('ontouchstart' in window);
+
+// Only disable if it's a low-end mobile device
+const shouldEnableParticles = !isMobileDevice || (navigator.hardwareConcurrency && navigator.hardwareConcurrency > 2);
+
+if (!window.particleCursorInstance && shouldEnableParticles) {
     document.addEventListener('DOMContentLoaded', () => {
         window.particleCursorInstance = new ParticleCursor();
     });
