@@ -36,7 +36,12 @@ class FluidHomePixi {
         
         // Ensure canvas is visible - set CSS class for visibility management
         this.canvas.classList.add('canvas-visible');
-        this.canvas.style.pointerEvents = 'none';
+        // Desktop: enable pointer events for swirl animation, Mobile: disable to allow scrolling
+        if (!this.isMobile && window.innerWidth > 320) {
+            this.canvas.style.pointerEvents = 'auto'; // Enable mouse events on desktop
+        } else {
+            this.canvas.style.pointerEvents = 'none'; // Disable on mobile for scrolling
+        }
         this.canvas.style.touchAction = 'pan-y pan-x pinch-zoom';
         
         // Also set parent container
@@ -268,18 +273,9 @@ class FluidHomePixi {
             const mx = clientX - rect.left;
             const my = clientY - rect.top;
             
-            // Check if pointer is within sprite bounds
-            if (this.sprite) {
-                const spriteBounds = this.sprite.getBounds();
-                if (mx >= spriteBounds.x && mx <= spriteBounds.x + spriteBounds.width &&
-                    my >= spriteBounds.y && my <= spriteBounds.y + spriteBounds.height) {
-                    this.mousePos.x = mx;
-                    this.mousePos.y = my;
-                } else {
-                    this.mousePos.x = -1000;
-                    this.mousePos.y = -1000;
-                }
-            }
+            // Update mouse position (don't restrict to sprite bounds for swirl to work everywhere)
+            this.mousePos.x = mx;
+            this.mousePos.y = my;
         };
 
         const handlePointerLeave = () => {
