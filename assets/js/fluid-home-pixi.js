@@ -169,8 +169,8 @@ class FluidHomePixi {
         
         // Validate sprite dimensions before scaling
         if (this.sprite.width > 0 && this.sprite.height > 0 && w > 0 && h > 0) {
-            // Increased scale multiplier to make image larger (was 1.16, now 1.3)
-            const scale = Math.min(w / this.sprite.width, h / this.sprite.height) * 1.3;
+            // Increased scale multiplier to make image larger (was 1.3, now 1.5)
+            const scale = Math.min(w / this.sprite.width, h / this.sprite.height) * 1.5;
         this.sprite.scale.set(scale);
         this.sprite.x = (w - this.sprite.width) / 2;
         this.sprite.y = (h - this.sprite.height) / 2;
@@ -376,8 +376,8 @@ class FluidHomePixi {
                                 const w = this.app.screen.width;
                                 const h = this.app.screen.height;
                                     if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
-                                        // Increased scale to match initial size (1.3 instead of 1.16)
-                                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.3;
+                                        // Increased scale to match initial size (1.5 instead of 1.3)
+                                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.5;
                                         this.sprite.scale.set(scale);
                                         this.sprite.x = (w - this.sprite.width) / 2;
                                         this.sprite.y = (h - this.sprite.height) / 2;
@@ -480,8 +480,8 @@ class FluidHomePixi {
                     const h = this.app.screen.height;
                     // Validate all dimensions before operations
                     if (w > 0 && h > 0 && this.sprite.texture.width > 0 && this.sprite.texture.height > 0) {
-                        // Increased scale to match initial size (1.3 instead of 1.16)
-                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.3;
+                        // Increased scale to match initial size (1.5 instead of 1.3)
+                        const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.5;
                         this.sprite.scale.set(scale);
                         this.sprite.x = (w - this.sprite.width) / 2;
                         this.sprite.y = (h - this.sprite.height) / 2;
