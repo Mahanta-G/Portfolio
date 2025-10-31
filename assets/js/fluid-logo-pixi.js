@@ -44,12 +44,12 @@ class FluidLogoPixi {
     }
 
     loadLogoImage() {
-        // Check if screen width is smaller than 10cm (approximately 377px at 96 DPI)
-        // 10cm = 100mm, at 96 DPI: 100mm / 25.4mm * 96 = ~377px
+        // Check if screen width is smaller than 13.5cm (490px at 96 DPI)
+        // 13.5cm = 135mm, at 96 DPI: 135mm / 25.4mm * 96 = ~510px (using 490px for consistency)
         const screenWidthCm = window.innerWidth / (window.devicePixelRatio || 1) / 37.795; // Convert px to cm
-        const isSmallScreen = window.innerWidth < 377 || screenWidthCm < 10;
+        const isSmallScreen = window.innerWidth < 490 || screenWidthCm < 13.5;
         
-        // If screen is smaller than 10cm, use GM initials instead of image
+        // If screen is smaller than 13.5cm (490px), use GM initials instead of image
         if (isSmallScreen) {
             if (this.isInitialized) return;
             this.isInitialized = true;
