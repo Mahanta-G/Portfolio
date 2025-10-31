@@ -320,16 +320,25 @@ html {
     position: relative;
     will-change: transform;
     backface-visibility: hidden;
-    /* Mobile: NEVER block scrolling - completely disable interactions */
-    pointer-events: none !important; /* Force no interactions on mobile */
+    /* ALWAYS disable interactions to prevent scroll blocking - even on desktop */
+    pointer-events: none !important; /* Force no interactions - prevent scroll blocking */
     touch-action: pan-y pan-x pinch-zoom !important; /* Force allow all scrolling */
 }
 
-/* Only enable interactions on desktop */
-@media (min-width: 769px) {
+/* Small screens (< 320px / 8cm): extra protection */
+@media (max-width: 320px) {
     .fluid-home-canvas {
-        pointer-events: auto; /* Desktop: enable mouse interactions */
-        touch-action: none; /* Desktop: allow interactions */
+        pointer-events: none !important; /* Absolutely no interactions */
+        touch-action: pan-y pan-x pinch-zoom !important; /* Force scrolling */
+        user-select: none; /* Prevent text selection */
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+    
+    .fluid-home-container {
+        pointer-events: none !important; /* Container also can't block */
+        touch-action: pan-y pan-x pinch-zoom !important;
     }
 }
 

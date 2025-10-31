@@ -74,8 +74,17 @@ class FluidHomePixi {
         this.sprite.y = (h - this.sprite.height) / 2;
         this.app.stage.addChild(this.sprite);
         
-        // Create swirl displacement sprite
-        this.createSwirlDisplacement();
+        // Check screen width - disable swirl completely on small screens (< 8cm = 320px)
+        const isSmallScreen = window.innerWidth <= 320;
+        
+        if (!isSmallScreen) {
+            // Only create swirl on larger screens, but still disable animation
+            this.createSwirlDisplacement();
+        } else {
+            // Small screens: don't create swirl at all - just static image
+            this.swirlSprite = null;
+            this.displacementFilter = null;
+        }
         
         this.animate();
     }
@@ -170,12 +179,17 @@ class FluidHomePixi {
         };
 
         // Support both mouse and touch events
-        // Mobile: disable all interactions to allow scrolling
-        if (this.isMobile) {
-            // Mobile: completely disable touch events - let scrolling work naturally
-            // Don't add any touch event listeners on mobile - canvas has pointer-events: none
+        // Check screen width - disable all interactions on small screens to allow scrolling
+        const isSmallScreen = window.innerWidth <= 320;
+        
+        if (this.isMobile || isSmallScreen) {
+            // Mobile and small screens: completely disable touch/mouse events
+            // Don't add any event listeners - canvas has pointer-events: none
             // This ensures scrolling is never blocked
+            this.mousePos.x = -1000;
+            this.mousePos.y = -1000;
         } else {
+            // Desktop only: add mouse events but still disable swirl animation
             this.canvas.addEventListener('mousemove', handlePointerMove);
             this.canvas.addEventListener('mouseleave', handlePointerLeave);
         }
@@ -272,26 +286,36 @@ class FluidHomePixi {
 
     animate() {
         this.app.ticker.add(() => {
-            // Check screen width - disable swirl on screens smaller than 8cm (320px)
+            // Completely disable swirl animation on ALL devices to prevent scroll blocking
+            // Check screen width - on small screens, don't even try to animate
             const isSmallScreen = window.innerWidth <= 320;
             
             if (isSmallScreen) {
-                // Small screens (< 8cm): disable swirl animation but keep image visible
+                // Small screens (< 8cm): no swirl at all - just static image
+                // Make absolutely sure displacement is disabled
                 if (this.displacementFilter) {
                     this.displacementFilter.scale.x = 0;
                     this.displacementFilter.scale.y = 0;
                 }
-                return; // Skip swirl animation on small screens
+                if (this.swirlSprite) {
+                    // Stop any swirl sprite rotation
+                    this.swirlSprite.rotation = 0;
+                }
+                return; // Skip all animation on small screens
             }
             
-            // Desktop and larger mobile: Disable swirl on all devices to prevent scroll blocking
-            // The swirl animation causes scroll blocking issues
+            // Desktop and larger mobile: Disable swirl completely to prevent scroll blocking
+            // The swirl animation causes scroll blocking issues on all devices
             if (this.displacementFilter) {
                 this.displacementFilter.scale.x = 0;
                 this.displacementFilter.scale.y = 0;
             }
+            if (this.swirlSprite) {
+                // Stop swirl sprite rotation
+                this.swirlSprite.rotation = 0;
+            }
             
-            // Swirl effect disabled - keeping code commented for reference
+            // Swirl effect completely disabled on all devices - keeping code commented for reference
             /*
             // Desktop: Update swirl position and intensity
             if (this.swirlSprite && this.displacementFilter) {
