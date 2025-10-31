@@ -109,24 +109,34 @@ class PortfolioApp {
     setupFloatingElements() {
         const floatingCards = document.querySelectorAll('.floating-card');
         
+        // Mobile detection
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                        (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) ||
+                        ('ontouchstart' in window);
+        
         floatingCards.forEach(card => {
             const speed = parseFloat(card.dataset.speed) || 1;
             
-            // Add mouse interaction
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'scale(1.1) rotate(5deg)';
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'scale(1) rotate(0deg)';
-            });
+            // Desktop only: Add mouse interaction
+            if (!isMobile) {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'scale(1.1) rotate(5deg)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'scale(1) rotate(0deg)';
+                });
+            }
 
-            // Parallax effect on scroll
-            window.addEventListener('scroll', () => {
-                const scrolled = window.pageYOffset;
-                const rate = scrolled * -0.5 * speed;
-                card.style.transform = `translateY(${rate}px)`;
-            });
+            // Mobile: disable parallax to prevent cards floating above image
+            if (!isMobile) {
+                // Parallax effect on scroll (desktop only)
+                window.addEventListener('scroll', () => {
+                    const scrolled = window.pageYOffset;
+                    const rate = scrolled * -0.5 * speed;
+                    card.style.transform = `translateY(${rate}px)`;
+                }, { passive: true });
+            }
         });
     }
 

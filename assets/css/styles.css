@@ -281,6 +281,9 @@ html {
     position: relative;
     width: 100%;
     height: 100%;
+    /* Mobile fix: prevent cards from floating above image on scroll */
+    overflow: hidden; /* Keep cards within bounds */
+    transform: translateZ(0); /* Force GPU acceleration for smooth scrolling */
 }
 
 /* Fluid Home Image Container - Optimized size (600x600), moved up 150px and left 60px */
@@ -292,7 +295,7 @@ html {
     left: 50%;
     transform: translate(calc(-50% - 60px), calc(-50% - 150px));
     z-index: 1;
-    pointer-events: none; /* Don't block scrolling - only canvas handles interactions */
+    pointer-events: none; /* Don't block scrolling */
     filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
     visibility: visible;
     opacity: 1;
@@ -301,7 +304,14 @@ html {
     backface-visibility: hidden;
     transform-style: preserve-3d;
     /* Mobile fix: allow scrolling through container */
-    touch-action: pan-y pinch-zoom; /* Allow vertical scrolling */
+    touch-action: pan-y pan-x pinch-zoom; /* Allow all scrolling gestures */
+}
+
+/* Desktop: enable interactions */
+@media (min-width: 769px) {
+    .fluid-home-container {
+        pointer-events: none; /* Still let canvas handle interactions */
+    }
 }
 
 .fluid-home-canvas {
@@ -314,9 +324,16 @@ html {
     position: relative;
     will-change: transform;
     backface-visibility: hidden;
-    /* Mobile: allow scrolling - only handle interactions within bounds */
-    pointer-events: auto;
-    touch-action: pan-y; /* Allow vertical scrolling - don't block scroll */
+    /* Mobile: NEVER block scrolling - allow all touch gestures through */
+    pointer-events: none; /* Don't capture any touch events - allow scroll */
+    touch-action: pan-y pan-x pinch-zoom; /* Allow all scrolling gestures */
+}
+
+/* Only enable interactions on desktop */
+@media (min-width: 769px) {
+    .fluid-home-canvas {
+        pointer-events: auto; /* Desktop: enable mouse interactions */
+    }
 }
 
 .floating-card {
@@ -333,10 +350,44 @@ html {
     animation: float 6s ease-in-out infinite;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Mobile fix: prevent floating above image on scroll */
+    will-change: transform;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    /* Mobile: ensure cards stay within container bounds */
+    pointer-events: none; /* Don't block scrolling */
+    touch-action: pan-y; /* Allow scrolling through cards */
+    /* Mobile: keep cards relative to container, not viewport */
+    transform: translateZ(0); /* Force GPU layer, prevent scroll issues */
+}
+
+/* Mobile: reduce float animation to prevent cards floating above */
+@media (max-width: 768px) {
+    .floating-card {
+        animation: floatMobile 6s ease-in-out infinite !important;
+        /* Mobile: disable parallax scroll transform - keep cards in place */
+        transform: translateZ(0) !important; /* Force GPU layer */
+    }
+    
+    @keyframes floatMobile {
+        0%, 100% {
+            transform: translateY(0px) translateZ(0) !important;
+        }
+        50% {
+            transform: translateY(-10px) translateZ(0) !important; /* Less movement on mobile */
+        }
+    }
 }
 
 .floating-card:hover {
     transform: scale(1.05);
+}
+
+/* Mobile: disable hover effects */
+@media (max-width: 768px) {
+    .floating-card:hover {
+        transform: translateZ(0) !important; /* Keep cards in place on mobile */
+    }
 }
 
 /* Floating Skill Cards - Static positions around center */

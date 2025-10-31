@@ -103,9 +103,9 @@ class FluidLogoPixi {
         // Only get image data from the drawn area
         const imageData = ctx.getImageData(Math.floor(x), Math.floor(y), Math.ceil(sw), Math.ceil(sh));
         
-        // Mobile optimization: smaller step for better coverage (logo completeness)
-        // Reduced step ensures logo appears complete even on small screens
-        const step = this.isMobile ? 1.8 : 1.2;
+        // Mobile optimization: much smaller step for complete logo coverage
+        // Smaller step = denser particles = more complete logo on mobile
+        const step = this.isMobile ? 1.4 : 1.2;
         let particleCount = 0;
         
         for (let py = 0; py < sh; py += step) {
@@ -117,17 +117,22 @@ class FluidLogoPixi {
                 const alpha = imageData.data[i + 3];
                 
                 // Mobile: lower threshold for better logo completeness
-                const alphaThreshold = this.isMobile ? 20 : 25;
+                const alphaThreshold = this.isMobile ? 18 : 25;
                 if (alpha > alphaThreshold) {
                     // Create PixiJS Graphics for each particle
                     const particle = new PIXI.Graphics();
                     
                     // Low neon white color (#f0f0f0)
                     particle.beginFill(0xf0f0f0);
-                    // Mobile: slightly smaller particles but still visible
-                    const particleSize = this.isMobile ? 3 : 3.5;
+                    // Mobile: slightly larger particles for better visibility
+                    const particleSize = this.isMobile ? 3.2 : 3.5;
                     particle.drawCircle(0, 0, particleSize);
                     particle.endFill();
+                    
+                    // Mobile: don't blur particles for sharper logo
+                    if (!this.isMobile && particleCount % 4 === 0) {
+                        particle.filters = [new PIXI.filters.BlurFilter(2, 2)];
+                    }
                     
                     // Position relative to the drawn image area
                     particle.x = Math.floor(x + px);
@@ -139,11 +144,6 @@ class FluidLogoPixi {
                     particle.baseY = y + py;
                     particle.vx = 0;
                     particle.vy = 0;
-                    
-                    // Add subtle blur to some particles for smooth edges
-                    if (particleCount % 4 === 0) {
-                        particle.filters = [new PIXI.filters.BlurFilter(2, 2)];
-                    }
                     
                     this.container.addChild(particle);
                     this.particles.push(particle);
@@ -190,7 +190,7 @@ class FluidLogoPixi {
         
         const imageData = ctx.getImageData(0, 0, w, h);
         // Mobile: smaller step for better text completeness
-        const step = this.isMobile ? 5 : 4;
+        const step = this.isMobile ? 4 : 4;
         let particleCount = 0;
         
         for (let py = 0; py < h; py += step) {
