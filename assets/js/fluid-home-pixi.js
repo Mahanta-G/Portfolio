@@ -127,7 +127,7 @@ class FluidHomePixi {
         
         if (!isSmallScreen) {
             // Only create swirl on larger screens, but still disable animation
-            this.createSwirlDisplacement();
+        this.createSwirlDisplacement();
         } else {
             // Small screens: don't create swirl at all - just static image
             this.swirlSprite = null;
@@ -331,24 +331,48 @@ class FluidHomePixi {
     }
 
     handleResize() {
-        const parent = this.canvas.parentElement;
-        const rect = parent.getBoundingClientRect();
+        // CRITICAL: Ensure canvas stays visible on resize
+        if (this.canvas) {
+            this.canvas.style.setProperty('display', 'block', 'important');
+            this.canvas.style.setProperty('visibility', 'visible', 'important');
+            this.canvas.style.setProperty('opacity', '1', 'important');
+            this.canvas.style.setProperty('pointer-events', 'none', 'important');
+        }
         
-        if (rect.width > 0 && rect.height > 0) {
+        const parent = this.canvas.parentElement;
+        if (parent) {
+            parent.style.setProperty('display', 'block', 'important');
+            parent.style.setProperty('visibility', 'visible', 'important');
+            parent.style.setProperty('opacity', '1', 'important');
+        }
+        
+        const rect = parent ? parent.getBoundingClientRect() : { width: 600, height: 600 };
+        
+        if (rect.width > 0 && rect.height > 0 && this.app && this.app.renderer) {
+            try {
             this.app.renderer.resize(rect.width, rect.height);
             
-            // Clear and reinitialize
-            if (this.sprite) {
-                this.app.stage.removeChild(this.sprite);
-                this.sprite = null;
-            }
-            if (this.swirlSprite) {
-                this.app.stage.removeChild(this.swirlSprite);
-                this.swirlSprite = null;
-            }
-            this.isInitialized = false;
-            
+                // Re-center sprite if it exists instead of removing
+                if (this.sprite && this.isInitialized && this.sprite.texture) {
+                    const w = this.app.screen.width;
+                    const h = this.app.screen.height;
+                    const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.16;
+                    this.sprite.scale.set(scale);
+                    this.sprite.x = (w - this.sprite.width) / 2;
+                    this.sprite.y = (h - this.sprite.height) / 2;
+                    this.sprite.visible = true;
+                    this.sprite.alpha = 1;
+                } else if (!this.isInitialized) {
+                    // Only reload if not initialized
+                    this.loadImage();
+                }
+            } catch (e) {
+                console.warn('Error resizing renderer:', e);
+                // Retry initialization if error
+                if (!this.isInitialized) {
             this.loadImage();
+                }
+            }
         }
     }
 
