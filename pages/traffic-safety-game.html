@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Safety Challenge - Gaurab Mahanta</title>
+    <link rel="stylesheet" href="../assets/css/styles.css?v=30">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- PixiJS for optimized WebGL rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <style>
+        .project-documentation {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+            position: relative;
+        }
+        
+        .project-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .project-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        
+        .project-header .project-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .project-header .project-tech {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .project-header .tech-tag {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .github-link {
+            position: absolute;
+            top: 140px;
+            right: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--primary-color);
+            border-radius: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .github-link:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .project-content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        
+        .project-content h2 {
+            color: var(--text-primary);
+            font-size: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .project-content h3 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .project-content p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .project-content ul, .project-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .project-content li {
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+        
+        .project-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .project-content a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .project-content code {
+            background: var(--bg-card);
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .project-content pre {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        .project-content pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-primary);
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-item {
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .feature-item i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-item h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .info-box {
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0.5rem;
+        }
+        
+        .info-box p {
+            margin: 0;
+        }
+
+        .level-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.5rem;
+        }
+
+        .level-section h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .external-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: var(--gradient-primary);
+            color: var(--bg-primary);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            margin: 1rem 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .external-link:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .links-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .project-header h1 {
+                font-size: 2rem;
+            }
+            
+            .project-content h2 {
+                font-size: 1.5rem;
+            }
+
+            .github-link {
+                position: static;
+                display: block;
+                margin-bottom: 2rem;
+                text-align: center;
+            }
+
+            .links-container {
+                flex-direction: column;
+            }
+
+            .external-link {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-logo">
+            <a href="home.html" style="display: flex; padding: 0; margin: 0;">
+                <div class="logo-container" id="logoContainer">
+                    <canvas class="logo-canvas" id="logoCanvas"></canvas>
+                </div>
+            </a>
+        </div>
+        
+        <div class="nav-menu" id="nav-menu">
+            <a href="home.html" class="nav-link">Home</a>
+            <a href="skills.html" class="nav-link">Skills</a>
+            <a href="projects.html" class="nav-link">Projects</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+            <a href="hobbies.html" class="nav-link">Hobbies</a>
+        </div>
+        
+        <div class="hamburger" id="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="project-documentation">
+        <a href="projects.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Projects
+        </a>
+
+        <a href="https://github.com/Mahanta-G/Traffic_Safety_Game" target="_blank" class="github-link">
+            <i class="fab fa-github"></i>
+            View the Work
+        </a>
+
+        <div class="project-header">
+            <h1>Traffic Safety Challenge</h1>
+            <p class="project-subtitle">A fun and educational web-based game built with TypeScript to promote traffic safety awareness!</p>
+            <div class="project-tech">
+                <span class="tech-tag">TypeScript</span>
+                <span class="tech-tag">Web Development</span>
+                <span class="tech-tag">Game Development</span>
+                <span class="tech-tag">Educational</span>
+            </div>
+        </div>
+
+        <!-- Overview Section -->
+        <section class="project-content">
+            <h2>🚦 Game Overview</h2>
+            <p>"Traffic Safety Challenge" is designed to be an interactive way to learn about and reinforce traffic safety principles. The game features two distinct levels:</p>
+            
+            <div class="level-section">
+                <h3>Level 1: Memory Lane (Two Parts)</h3>
+                <p>This level challenges your memory skills with a classic tile-matching game. You'll need to uncover pairs of traffic safety-related images. Success in both parts of this level is crucial to unlock the next challenge!</p>
+            </div>
+
+            <div class="level-section">
+                <h3>Level 2: The Safety Quiz</h3>
+                <p>Once you've mastered "Memory Lane," you'll unlock an interactive quiz. This level will test your understanding of various traffic safety rules and scenarios. Answer correctly to prove your knowledge!</p>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="project-content">
+            <h2>✨ Features</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="fas fa-gamepad"></i>
+                    <h4>Interactive Gameplay</h4>
+                    <p>Engaging memory and quiz formats that keep players engaged while learning.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-lock"></i>
+                    <h4>Progressive Difficulty</h4>
+                    <p>Unlock Level 2 only after completing Level 1, ensuring proper learning progression.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h4>Educational Content</h4>
+                    <p>Learn important traffic safety information while playing and having fun.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-globe"></i>
+                    <h4>Web-Based</h4>
+                    <p>Play directly in your browser, no installation required.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-code"></i>
+                    <h4>Built with TypeScript</h4>
+                    <p>Ensures a robust and scalable codebase for future enhancements.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Getting Started Section -->
+        <section class="project-content">
+            <h2>🚀 Getting Started</h2>
+            <p>🔗 <strong>Live Demo:</strong> <a href="https://traffic-safety-challenge.netlify.app/" target="_blank">https://traffic-safety-challenge.netlify.app/</a></p>
+            <p>To get a local copy up and running, follow these simple steps.</p>
+
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>Node.js (LTS version recommended)</li>
+                <li>npm (comes with Node.js) or Yarn</li>
+            </ul>
+
+            <h3>Installation</h3>
+            <h4>1. Clone the repository:</h4>
+            <pre><code>git clone https://github.com/Mahanta-G/Traffic_Safety_Game.git
+cd Traffic_Safety_Game</code></pre>
+
+            <h4>2. Install dependencies:</h4>
+            <pre><code>npm install
+# or
+yarn install</code></pre>
+
+            <h4>3. Run the development server:</h4>
+            <pre><code>npm start
+# or
+yarn start</code></pre>
+            <p>This will typically open the game in your default browser at <code>http://localhost:3000</code> (or another available port).</p>
+
+            <h4>4. Build for production (optional):</h4>
+            <p>To create a production-ready build of the game, run:</p>
+            <pre><code>npm run build
+# or
+yarn build</code></pre>
+            <p>This will generate optimized static files in the <code>dist</code> (or <code>build</code>) directory, which you can then deploy to any web server.</p>
+        </section>
+
+        <!-- How to Play Section -->
+        <section class="project-content">
+            <h2>🕹️ How to Play</h2>
+            
+            <div class="level-section">
+                <h3>Level 1: Memory Lane</h3>
+                <ul>
+                    <li>The game board will display a grid of face-down tiles.</li>
+                    <li>Click on two tiles to flip them over.</li>
+                    <li>If the images on the two tiles match, they will stay face-up and be removed from play.</li>
+                    <li>If they don't match, they will flip back over after a short delay.</li>
+                    <li>Remember the locations of the images to make successful matches.</li>
+                    <li>Complete both parts of "Memory Lane" to unlock "The Safety Quiz."</li>
+                </ul>
+            </div>
+
+            <div class="level-section">
+                <h3>Level 2: The Safety Quiz</h3>
+                <ul>
+                    <li>Once unlocked, you'll be presented with a series of multiple-choice questions related to traffic safety.</li>
+                    <li>Select the correct answer for each question.</li>
+                    <li>Your score and performance will be displayed at the end.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Live Demo Section -->
+        <section class="project-content">
+            <h2>Live Demo</h2>
+            <p>Try the game directly in your browser:</p>
+            <div class="links-container">
+                <a href="https://traffic-safety-challenge.netlify.app/" target="_blank" class="external-link">
+                    <i class="fas fa-external-link-alt"></i>
+                    Play Live Demo
+                </a>
+            </div>
+        </section>
+
+        <!-- Contributing Section -->
+        <section class="project-content">
+            <h2>🤝 Contributing</h2>
+            <p>Contributions are welcome! If you have suggestions for new features, improvements, or bug fixes, please open an issue or submit a pull request.</p>
+            <ol>
+                <li>Fork the repository.</li>
+                <li>Create your feature branch (<code>git checkout -b feature/AmazingFeature</code>).</li>
+                <li>Commit your changes (<code>git commit -m 'Add some AmazingFeature'</code>).</li>
+                <li>Push to the branch (<code>git push origin feature/AmazingFeature</code>).</li>
+                <li>Open a Pull Request.</li>
+            </ol>
+        </section>
+
+        <!-- License Section -->
+        <section class="project-content">
+            <h2>📄 License</h2>
+            <p>Distributed under the MIT License. See <code>LICENSE</code> for more information.</p>
+        </section>
+
+        <!-- Conclusion Section -->
+        <section class="project-content">
+            <div class="info-box" style="border-left-color: var(--accent-color);">
+                <p style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Educational & Fun!</p>
+                <p>Traffic Safety Challenge combines education with entertainment, making it an effective tool for learning important traffic safety principles while having fun.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Gaurab Mahanta. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com/Mahanta-G" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/mahanta1412/" target="_blank" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="mailto:mahanta1412@gmail.com" class="social-link"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/fluid-logo-pixi.js?v=24"></script>
+    <script src="../assets/js/script.js?v=10"></script>
+    <script src="../assets/js/particles.js?v=10"></script>
+</body>
+</html>
+

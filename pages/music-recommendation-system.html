@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Recommendation System - Gaurab Mahanta</title>
+    <link rel="stylesheet" href="../assets/css/styles.css?v=30">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- PixiJS for optimized WebGL rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <style>
+        .project-documentation {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+            position: relative;
+        }
+        
+        .project-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .project-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        
+        .project-header .project-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .project-header .project-tech {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .project-header .tech-tag {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .github-link {
+            position: absolute;
+            top: 140px;
+            right: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--primary-color);
+            border-radius: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .github-link:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .project-content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        
+        .project-content h2 {
+            color: var(--text-primary);
+            font-size: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .project-content h3 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .project-content p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .project-content ul, .project-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .project-content li {
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+        
+        .project-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .project-content a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .project-content code {
+            background: var(--bg-card);
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .project-content pre {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        .project-content pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-primary);
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-item {
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .feature-item i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-item h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .info-box {
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0.5rem;
+        }
+        
+        .info-box p {
+            margin: 0;
+        }
+
+        .example-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        @media (max-width: 768px) {
+            .project-header h1 {
+                font-size: 2rem;
+            }
+            
+            .project-content h2 {
+                font-size: 1.5rem;
+            }
+
+            .github-link {
+                position: static;
+                display: block;
+                margin-bottom: 2rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-logo">
+            <a href="home.html" style="display: flex; padding: 0; margin: 0;">
+                <div class="logo-container" id="logoContainer">
+                    <canvas class="logo-canvas" id="logoCanvas"></canvas>
+                </div>
+            </a>
+        </div>
+        
+        <div class="nav-menu" id="nav-menu">
+            <a href="home.html" class="nav-link">Home</a>
+            <a href="skills.html" class="nav-link">Skills</a>
+            <a href="projects.html" class="nav-link">Projects</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+            <a href="hobbies.html" class="nav-link">Hobbies</a>
+        </div>
+        
+        <div class="hamburger" id="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="project-documentation">
+        <a href="projects.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Projects
+        </a>
+
+        <a href="https://github.com/Mahanta-G/Song-Recommendation-Maybe-" target="_blank" class="github-link">
+            <i class="fab fa-github"></i>
+            View the Work
+        </a>
+
+        <div class="project-header">
+            <h1>Song Recommendation System</h1>
+            <p class="project-subtitle">A content-based song recommendation system that suggests songs based on the similarity of their lyrics.</p>
+            <div class="project-tech">
+                <span class="tech-tag">Python</span>
+                <span class="tech-tag">Pandas</span>
+                <span class="tech-tag">NumPy</span>
+                <span class="tech-tag">Scikit-Learn</span>
+                <span class="tech-tag">Scipy</span>
+                <span class="tech-tag">Machine Learning</span>
+            </div>
+        </div>
+
+        <!-- Overview Section -->
+        <section class="project-content">
+            <h2>Overview</h2>
+            <p>This project implements a content-based song recommendation system that suggests songs based on the similarity of their lyrics. The core algorithm utilizes TF-IDF (Term Frequency-Inverse Document Frequency) to analyze song lyrics, and cosine similarity to find similar songs.</p>
+        </section>
+
+        <!-- Features Section -->
+        <section class="project-content">
+            <h2>Features</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="fas fa-music"></i>
+                    <h4>Content-Based Recommendations</h4>
+                    <p>Recommends songs based on lyrics similarity using advanced text analysis techniques.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-chart-line"></i>
+                    <h4>Scalability</h4>
+                    <p>Designed to handle a dataset with up to 50,000 songs efficiently.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-keyboard"></i>
+                    <h4>Flexible Input</h4>
+                    <p>Users can input any song title to receive personalized recommendations.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technologies Used Section -->
+        <section class="project-content">
+            <h2>Technologies Used</h2>
+            <ul>
+                <li><strong>Python:</strong> Core programming language</li>
+                <li><strong>Pandas:</strong> Data manipulation and analysis</li>
+                <li><strong>NumPy:</strong> Numerical computing operations</li>
+                <li><strong>Scikit-Learn:</strong> Machine learning algorithms and TF-IDF vectorization</li>
+                <li><strong>Scipy:</strong> Scientific computing and cosine similarity calculations</li>
+            </ul>
+        </section>
+
+        <!-- Installation Section -->
+        <section class="project-content">
+            <h2>Installation</h2>
+            <h3>1. Clone the repository:</h3>
+            <pre><code>git clone https://github.com/Mahanta-G/Song-Recommendation-Maybe-.git
+cd Song-Recommendation-Maybe-</code></pre>
+            
+            <h3>2. Install the required packages:</h3>
+            <pre><code>pip install pandas numpy scikit-learn</code></pre>
+        </section>
+
+        <!-- Dataset Section -->
+        <section class="project-content">
+            <h2>Dataset</h2>
+            <p>The dataset should be a CSV file containing the following columns:</p>
+            <ul>
+                <li><strong>artist:</strong> The name of the artist.</li>
+                <li><strong>song:</strong> The title of the song.</li>
+                <li><strong>text:</strong> The lyrics of the song.</li>
+            </ul>
+            <div class="info-box">
+                <p><strong>Note:</strong> You can replace the dataset path in the code to point to your CSV file.</p>
+            </div>
+        </section>
+
+        <!-- Usage Section -->
+        <section class="project-content">
+            <h2>Usage</h2>
+            <h3>1. Run the main script:</h3>
+            <pre><code>python main.py</code></pre>
+            
+            <h3>2. Follow the prompts to enter a song name and the desired number of recommendations.</h3>
+        </section>
+
+        <!-- Example Section -->
+        <section class="project-content">
+            <h2>Example</h2>
+            <div class="example-box">
+                <p>Enter a song name: <strong>Smoke On The Water</strong></p>
+                <p>Enter the number of recommendations you want: <strong>5</strong></p>
+                <br>
+                <p>Recommended songs for 'Smoke On The Water':</p>
+                <p>Recommendation 1:</p>
+                <p>Song: Highway Star | Artist: Deep Purple | Similarity Score: 0.85</p>
+                <p>-------------</p>
+                <p>Recommendation 2:</p>
+                <p>Song: Child in Time | Artist: Deep Purple | Similarity Score: 0.82</p>
+                <p>-------------</p>
+                <p>...</p>
+            </div>
+        </section>
+
+        <!-- Contributing Section -->
+        <section class="project-content">
+            <h2>Contributing</h2>
+            <p>Contributions are welcome! Feel free to submit a pull request or open an issue.</p>
+        </section>
+
+        <!-- Acknowledgements Section -->
+        <section class="project-content">
+            <h2>Acknowledgements</h2>
+            <ul>
+                <li>Inspired by various music recommendation systems and algorithms.</li>
+                <li>Thanks to all the contributors and resources that helped in building this project.</li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Gaurab Mahanta. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com/Mahanta-G" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/mahanta1412/" target="_blank" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="mailto:mahanta1412@gmail.com" class="social-link"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/fluid-logo-pixi.js?v=24"></script>
+    <script src="../assets/js/script.js?v=10"></script>
+    <script src="../assets/js/particles.js?v=10"></script>
+</body>
+</html>
+

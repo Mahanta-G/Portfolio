@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APDCL Transformer Mapping - Gaurab Mahanta</title>
+    <link rel="stylesheet" href="../assets/css/styles.css?v=30">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- PixiJS for optimized WebGL rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <style>
+        .project-documentation {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+            position: relative;
+        }
+        
+        .project-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .project-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        
+        .project-header .project-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .project-header .project-tech {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .project-header .tech-tag {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .github-link {
+            position: absolute;
+            top: 140px;
+            right: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--primary-color);
+            border-radius: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .github-link:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .project-content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        
+        .project-content h2 {
+            color: var(--text-primary);
+            font-size: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .project-content h3 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .project-content p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .project-content ul, .project-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .project-content li {
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+        
+        .project-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .project-content a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-item {
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .feature-item i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-item h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .info-box {
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0.5rem;
+        }
+        
+        .info-box p {
+            margin: 0;
+        }
+
+        .week-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.5rem;
+        }
+
+        .week-section h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .external-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: var(--gradient-primary);
+            color: var(--bg-primary);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            margin: 1rem 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .external-link:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .links-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .project-header h1 {
+                font-size: 2rem;
+            }
+            
+            .project-content h2 {
+                font-size: 1.5rem;
+            }
+
+            .github-link {
+                position: static;
+                display: block;
+                margin-bottom: 2rem;
+                text-align: center;
+            }
+
+            .links-container {
+                flex-direction: column;
+            }
+
+            .external-link {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-logo">
+            <a href="home.html" style="display: flex; padding: 0; margin: 0;">
+                <div class="logo-container" id="logoContainer">
+                    <canvas class="logo-canvas" id="logoCanvas"></canvas>
+                </div>
+            </a>
+        </div>
+        
+        <div class="nav-menu" id="nav-menu">
+            <a href="home.html" class="nav-link">Home</a>
+            <a href="skills.html" class="nav-link">Skills</a>
+            <a href="projects.html" class="nav-link">Projects</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+            <a href="hobbies.html" class="nav-link">Hobbies</a>
+        </div>
+        
+        <div class="hamburger" id="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="project-documentation">
+        <a href="projects.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Projects
+        </a>
+
+        <a href="https://github.com/Mahanta-G" target="_blank" class="github-link">
+            <i class="fab fa-github"></i>
+            View the Work
+        </a>
+
+        <div class="project-header">
+            <h1>APDCL Transformer Mapping</h1>
+            <p class="project-subtitle">A real-time mapping system for visualizing transformers and consumers on an interactive map with data analysis capabilities.</p>
+            <div class="project-tech">
+                <span class="tech-tag">Node.js</span>
+                <span class="tech-tag">Express.js</span>
+                <span class="tech-tag">React.js</span>
+                <span class="tech-tag">TomTom API</span>
+                <span class="tech-tag">Web Development</span>
+            </div>
+        </div>
+
+        <!-- Overview Section -->
+        <section class="project-content">
+            <h2>Overview</h2>
+            <p>This project is a comprehensive mapping system developed for APDCL (Assam Power Distribution Company Limited) to visualize and analyze transformer locations and consumer data on an interactive map. The system provides real-time data visualization with powerful analytical capabilities.</p>
+        </section>
+
+        <!-- Project Timeline Section -->
+        <section class="project-content">
+            <h2>Project Timeline</h2>
+            
+            <div class="week-section">
+                <h3>Week 1</h3>
+                <ol>
+                    <li>Get the dataset</li>
+                    <li>Analyse the dataset</li>
+                    <li>Modify according to requirement</li>
+                </ol>
+            </div>
+
+            <div class="week-section">
+                <h3>Week 2</h3>
+                <ol>
+                    <li>Plot the consumers on map</li>
+                    <li>Analyze the transformer dataset</li>
+                    <li>Modify according to requirements</li>
+                    <li>Plot the transformers on map</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="project-content">
+            <h2>Features</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h4>Interactive Mapping</h4>
+                    <p>Visualize transformers and consumers on an interactive map using TomTom API.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-database"></i>
+                    <h4>Data Analysis</h4>
+                    <p>Analyze and process large datasets of transformer and consumer information.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <h4>Real-time Visualization</h4>
+                    <p>Display real-time data with color-coded markers and intuitive visualizations.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-cogs"></i>
+                    <h4>Data Modification</h4>
+                    <p>Process and modify datasets according to specific requirements and standards.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technologies Used Section -->
+        <section class="project-content">
+            <h2>Technologies Used</h2>
+            <ul>
+                <li><strong>Node.js:</strong> Server-side runtime environment</li>
+                <li><strong>Express.js:</strong> Web application framework</li>
+                <li><strong>React.js:</strong> Frontend library for building user interfaces</li>
+                <li><strong>TomTom API:</strong> Mapping and geocoding services</li>
+            </ul>
+        </section>
+
+        <!-- Live Demo Section -->
+        <section class="project-content">
+            <h2>Live Demo</h2>
+            <p>Check out the live application:</p>
+            <div class="links-container">
+                <a href="https://apdcl-map.netlify.app/" target="_blank" class="external-link">
+                    <i class="fas fa-external-link-alt"></i>
+                    View Live Demo
+                </a>
+            </div>
+        </section>
+
+        <!-- Complete Report Section -->
+        <section class="project-content">
+            <h2>Complete Report</h2>
+            <p>For detailed documentation and complete project report:</p>
+            <div class="links-container">
+                <a href="https://tinyurl.com/rhee2vax" target="_blank" class="external-link">
+                    <i class="fas fa-file-pdf"></i>
+                    View Complete Report
+                </a>
+            </div>
+        </section>
+
+        <!-- Conclusion Section -->
+        <section class="project-content">
+            <div class="info-box" style="border-left-color: var(--accent-color);">
+                <p style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Project Impact</p>
+                <p>This mapping system provides APDCL with an efficient way to visualize and analyze transformer and consumer data, enabling better decision-making and resource management.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Gaurab Mahanta. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com/Mahanta-G" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/mahanta1412/" target="_blank" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="mailto:mahanta1412@gmail.com" class="social-link"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/fluid-logo-pixi.js?v=24"></script>
+    <script src="../assets/js/script.js?v=10"></script>
+    <script src="../assets/js/particles.js?v=10"></script>
+</body>
+</html>
+

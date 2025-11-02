@@ -190,6 +190,10 @@
             box-shadow: var(--shadow-lg);
         }
         
+        .project-documentation {
+            position: relative;
+        }
+
         .back-button {
             display: inline-flex;
             align-items: center;
@@ -207,6 +211,30 @@
         .back-button:hover {
             border-color: var(--primary-color);
             color: var(--primary-color);
+        }
+
+        .github-link {
+            position: absolute;
+            top: 140px;
+            right: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--primary-color);
+            border-radius: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .github-link:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
         
         .info-box {
@@ -232,6 +260,13 @@
             
             .project-images {
                 grid-template-columns: 1fr;
+            }
+
+            .github-link {
+                position: static;
+                display: block;
+                margin-bottom: 2rem;
+                text-align: center;
             }
         }
     </style>
@@ -267,6 +302,11 @@
         <a href="projects.html" class="back-button">
             <i class="fas fa-arrow-left"></i>
             Back to Projects
+        </a>
+
+        <a href="https://github.com/Mahanta-G" target="_blank" class="github-link">
+            <i class="fab fa-github"></i>
+            View the Work
         </a>
 
         <div class="project-header">
