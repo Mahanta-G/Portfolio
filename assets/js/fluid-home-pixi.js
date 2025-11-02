@@ -8,41 +8,59 @@ class FluidHomePixi {
         this.swirlSprite = null;
         this.displacementFilter = null;
         this.isInitialized = false;
+        this.isDestroyed = false;
         this.init();
     }
 
     init() {
+        if (this.isDestroyed) return;
+        
         const parent = this.canvas.parentElement;
+        if (!parent) return;
+        
         const rect = parent.getBoundingClientRect();
         
-        // Create PixiJS Application with WebGL
-        this.app = new PIXI.Application({
-            view: this.canvas,
-            width: rect.width,
-            height: rect.height,
-            backgroundColor: 0x000000,
-            backgroundAlpha: 0,
-            antialias: true,
-            resolution: window.devicePixelRatio || 1,
-            autoDensity: true,
-            powerPreference: 'high-performance',
-        });
+        if (rect.width === 0 || rect.height === 0) {
+            setTimeout(() => this.init(), 100);
+            return;
+        }
+        
+        try {
+            // Create PixiJS Application with WebGL
+            this.app = new PIXI.Application({
+                view: this.canvas,
+                width: rect.width,
+                height: rect.height,
+                backgroundColor: 0x000000,
+                backgroundAlpha: 0,
+                antialias: true,
+                resolution: window.devicePixelRatio || 1,
+                autoDensity: true,
+                powerPreference: 'high-performance',
+            });
 
-        this.loadImage();
-        this.setupEventListeners();
+            this.loadImage();
+            this.setupEventListeners();
+        } catch (error) {
+            console.error('Failed to initialize PixiJS:', error);
+        }
     }
 
     loadImage() {
+        if (this.isDestroyed) return;
+        
         const texture = PIXI.Texture.from(this.imageSrc);
         
         texture.baseTexture.on('loaded', () => {
-            if (this.isInitialized) return;
+            if (this.isInitialized || this.isDestroyed) return;
             this.isInitialized = true;
             this.createDisplacementEffect(texture);
         });
     }
 
     createDisplacementEffect(texture) {
+        if (this.isDestroyed || !this.app) return;
+        
         const w = this.app.screen.width;
         const h = this.app.screen.height;
         
@@ -61,6 +79,8 @@ class FluidHomePixi {
     }
     
     createSwirlDisplacement() {
+        if (this.isDestroyed || !this.app) return;
+        
         // Create a canvas with a spiral displacement map
         const size = 256;
         const canvas = document.createElement('canvas');
@@ -147,7 +167,7 @@ class FluidHomePixi {
             this.mousePos.y = -1000;
         });
 
-        // Add resize listener
+        // Add resize listener (NO scroll listener - this was causing the bug)
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
@@ -158,29 +178,38 @@ class FluidHomePixi {
     }
 
     handleResize() {
+        if (this.isDestroyed || !this.app) return;
+        
         const parent = this.canvas.parentElement;
+        if (!parent) return;
+        
         const rect = parent.getBoundingClientRect();
         
         if (rect.width > 0 && rect.height > 0) {
-            this.app.renderer.resize(rect.width, rect.height);
-            
-            // Clear and reinitialize
-            if (this.sprite) {
-                this.app.stage.removeChild(this.sprite);
-                this.sprite = null;
+            try {
+                this.app.renderer.resize(rect.width, rect.height);
+                
+                // FIXED: Just reposition and rescale instead of destroying
+                if (this.sprite && this.sprite.texture) {
+                    const w = rect.width;
+                    const h = rect.height;
+                    const scale = Math.min(w / this.sprite.texture.width, h / this.sprite.texture.height) * 1.16;
+                    this.sprite.scale.set(scale);
+                    this.sprite.x = (w - this.sprite.width) / 2;
+                    this.sprite.y = (h - this.sprite.height) / 2;
+                }
+            } catch (error) {
+                console.error('Resize error:', error);
             }
-            if (this.swirlSprite) {
-                this.app.stage.removeChild(this.swirlSprite);
-                this.swirlSprite = null;
-            }
-            this.isInitialized = false;
-            
-            this.loadImage();
         }
     }
 
     animate() {
+        if (this.isDestroyed || !this.app) return;
+        
         this.app.ticker.add(() => {
+            if (this.isDestroyed) return;
+            
             // Update swirl position and intensity
             if (this.swirlSprite && this.displacementFilter) {
                 if (this.mousePos.x > -500) {
@@ -205,9 +234,16 @@ class FluidHomePixi {
     }
 
     destroy() {
+        this.isDestroyed = true;
+        
         if (this.app) {
             this.app.destroy(true, { children: true, texture: true, baseTexture: true });
+            this.app = null;
         }
+        
+        this.sprite = null;
+        this.swirlSprite = null;
+        this.displacementFilter = null;
     }
 }
 

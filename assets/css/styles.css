@@ -183,11 +183,12 @@ html {
     gap: 2rem;
     align-items: center;
     min-height: calc(100vh - 130px);
-    padding: 2rem 0;  /* Remove horizontal padding */
+    padding: 2rem 0;
     max-width: 100%;
-    /* Changed to visible to prevent image cropping - allow full image to show */
-    overflow: visible !important;
+    overflow: visible !important; /* Allow cards to be visible */
     box-sizing: border-box;
+    /* Establish positioning context */
+    position: relative;
 }
 
 .hero-content {
@@ -274,21 +275,19 @@ html {
 
 .hero-visual {
     position: relative;
-    height: 600px;  /* Optimized for 600x600 image */
-    animation: slideInRight 1s ease-out;
-    /* Prevent collapse - ensure minimum size */
+    height: 600px;
     min-height: 200px !important;
     display: block !important;
+    /* Prevent overflow issues */
+    overflow: visible !important;
 }
 
 .floating-elements {
     position: relative;
     width: 100%;
     height: 100%;
-    /* Changed to visible to prevent image cropping - allow full image to show */
-    overflow: visible !important; /* Allow image to extend beyond container */
-    transform: translateZ(0); /* Force GPU acceleration for smooth scrolling */
-    /* Prevent collapse - ensure minimum size */
+    overflow: visible !important;
+    transform: translateZ(0);
     min-width: inherit !important;
     min-height: inherit !important;
     display: block !important;
@@ -484,23 +483,26 @@ html {
     animation: float 6s ease-in-out infinite;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    /* Mobile fix: prevent floating above image on scroll */
-    will-change: transform;
-    transform-style: preserve-3d;
-    backface-visibility: hidden;
-    /* Mobile: ensure cards stay within container bounds */
-    pointer-events: none; /* Don't block scrolling */
+    
+    /* FIXES for scroll displacement */
+    will-change: auto; /* Remove will-change to prevent GPU layer issues */
+    transform-style: flat; /* Changed from preserve-3d */
+    backface-visibility: visible; /* Changed from hidden */
+    pointer-events: auto; /* Allow clicking */
     touch-action: pan-y; /* Allow scrolling through cards */
-    /* Mobile: keep cards relative to container, not viewport */
-    transform: translateZ(0); /* Force GPU layer, prevent scroll issues */
+    
+    /* Ensure cards stay in their container */
+    transform: translateZ(0); /* Force GPU layer but keep position stable */
 }
 
 /* Mobile: reduce float animation to prevent cards floating above */
 @media (max-width: 768px) {
     .floating-card {
         animation: floatMobile 6s ease-in-out infinite !important;
-        /* Mobile: disable parallax scroll transform - keep cards in place */
-        transform: translateZ(0) !important; /* Force GPU layer */
+        /* Keep cards in place on mobile */
+        transform: translateZ(0) !important;
+        /* Disable any scroll-based transforms */
+        will-change: auto !important;
     }
     
     @keyframes floatMobile {
@@ -508,7 +510,7 @@ html {
             transform: translateY(0px) translateZ(0) !important;
         }
         50% {
-            transform: translateY(-10px) translateZ(0) !important; /* Less movement on mobile */
+            transform: translateY(-10px) translateZ(0) !important;
         }
     }
 }
@@ -520,7 +522,7 @@ html {
 /* Mobile: disable hover effects */
 @media (max-width: 768px) {
     .floating-card:hover {
-        transform: translateZ(0) !important; /* Keep cards in place on mobile */
+        transform: translateZ(0) !important;
     }
 }
 
@@ -531,6 +533,8 @@ html {
     animation: float 6s ease-in-out infinite;
     animation-delay: 0s;
     z-index: 10;
+    /* Lock position relative to parent */
+    position: absolute;
 }
 
 .floating-card:nth-child(3) {
@@ -539,6 +543,7 @@ html {
     animation: float 6s ease-in-out infinite;
     animation-delay: 2s;
     z-index: 10;
+    position: absolute;
 }
 
 .floating-card:nth-child(4) {
@@ -547,7 +552,9 @@ html {
     animation: float 6s ease-in-out infinite;
     animation-delay: 4s;
     z-index: 10;
+    position: absolute;
 }
+
 
 .floating-card i {
     font-size: 2rem;
@@ -854,6 +861,9 @@ html {
     box-shadow: var(--shadow-sm), 0 0 10px rgba(0, 212, 255, 0.1);
     border: 1px solid var(--border-color);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
 }
 
 .contact-item:hover {
@@ -868,7 +878,7 @@ html {
     text-shadow: var(--text-shadow-3d);
 }
 
-.contact-link:hover {
+.contact-item:hover .contact-link {
     color: var(--primary-color);
     text-shadow: var(--text-shadow-glow);
 }
